@@ -12,7 +12,7 @@ open class GradlePluginPublishingExtension @Inject constructor(project: Project,
     var id: Property<String> = propertyString("id")
     var webSite: Property<String> = propertyString("web")
     var vcsUrl: Property<String> = propertyString("vcs")
-    var tags: ListProperty<String> = listProperty("tags") { list: List<List<String>> -> list.flatten() }
+    var tags: ListProperty<String> = propertyList("tags", toStringList)
     var implementationClass: Property<String> =
         propertyString("class")
     var description: Property<String> =

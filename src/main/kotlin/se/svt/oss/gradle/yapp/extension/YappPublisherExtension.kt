@@ -29,6 +29,6 @@ open class YappPublisherExtension @Inject constructor(project: Project, objects:
 
     var withoutSource: Property<Boolean> = propertyBool("withoutSource")
     var withoutDoc: Property<Boolean> = propertyBool("withoutDoc")
-    var dokkaPublishings: ListProperty<String> = listProperty("dokkaPublishings") { list: List<List<String>> -> list.flatten() }
-    var targets: ListProperty<String> = listProperty("targets") { list: List<List<String>> -> list.flatten() }
+    var dokkaPublishings: ListProperty<String> = propertyList("dokkaPublishings", toStringList)
+    var targets: ListProperty<String> = propertyList("targets", toStringList)
 }

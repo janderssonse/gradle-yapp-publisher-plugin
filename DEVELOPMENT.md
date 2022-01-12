@@ -65,7 +65,7 @@ plugins {
 
 }
 
-
+and finally comment the pluginbundle and gradleplugin sections, you are now using yaop instead.
 
 ```
 

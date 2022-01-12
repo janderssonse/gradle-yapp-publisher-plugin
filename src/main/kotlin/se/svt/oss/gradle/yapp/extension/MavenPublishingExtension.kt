@@ -26,11 +26,10 @@ open class MavenPublishingExtension @Inject constructor(
 
     var licenseName: Property<String> = propertyString("licenseName")
     var licenseUrl: Property<String> = propertyString("licenseUrl")
-    var licenseDistribution: Property<String> =
-        propertyString("licenseDistribution")
+    var licenseDistribution: Property<String> = propertyString("licenseDistribution")
     var licenseComments: Property<String> = propertyString("licenseComments")
 
-    var developers = listProperty("developer", Developer.stringListToDev)
+    var developers = propertyList("developer", Developer.toDevelopers)
 
     var organization: Property<String> = propertyString("organization")
     var organizationUrl: Property<String> = propertyString("organizationUrl")
@@ -50,16 +49,12 @@ open class MavenPublishingExtension @Inject constructor(
 data class Developer(val id: String, val name: String, val email: String) {
 
     companion object {
-        val stringListToDev: (List<List<String>>) -> List<Developer> =
+        val toDevelopers: (List<List<String>>) -> List<Developer> =
             { list ->
-                list.map {
-
-                    Developer(
-                        it.getOrElse(0, { "a" }),
-                        it.getOrElse(1, { "b" }),
-                        it.getOrElse(2, { "c" })
-                    )
-                }
+                list.filter { it.size == 3 }
+                    .map {
+                        Developer(it[0], it[1], it[2])
+                    }
             }
     }
 }

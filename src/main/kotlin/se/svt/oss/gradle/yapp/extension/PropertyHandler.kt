@@ -8,52 +8,56 @@ import javax.inject.Inject
 
 abstract class PropertyHandler @Inject constructor(
     val project: Project,
-    val objects: ObjectFactory,
-    val propPrefix: String,
-    val envPrefix: String
+    private val objects: ObjectFactory,
+    private val propPrefix: String,
+    private val envPrefix: String
 ) {
 
-    internal fun propertyString(property: String, default: String = "") =
-        simpleProperty(property, default, stringListToString)
+    internal fun propertyString(property: String, defaultValue: String = "") =
+        simpleProperty(property, defaultValue, { it.first() })
 
-    internal fun propertyBool(property: String, default: Boolean = false) =
-        simpleProperty(property, default, stringListToBool)
+    internal fun propertyBool(property: String, defaultValue: Boolean = false) =
+        simpleProperty(property, defaultValue, { it.first().toBooleanStrict() })
 
-    private val stringListToString: (list: List<String>) -> String = {
-        if (it.isEmpty()) {
-            ""
-        } else it.first()
-    }
-    private val stringListToBool: (list: List<String>) -> Boolean = {
-        if (it.isEmpty()) {
-            false
-        } else it.first().toBooleanStrict()
-    }
+    internal inline fun <reified T> propertyList(
+        property: String,
+        toTypeFunction: (List<List<String>>) -> List<T>,
+        defaultValue: List<T> = emptyList()
+    ) = listProperty(property, defaultValue, toTypeFunction)
 
     private inline fun <reified T> simpleProperty(
         property: String,
-        default: T,
+        defaultValue: T,
         mapToType: (List<String>) -> T
     ): Property<T> {
 
         val filteredPropertiesMap = findProperties(property, propPrefix, envPrefix, project).values.toList()
-        val gradlePropOrEnvProperties: T = if (filteredPropertiesMap.isEmpty()) {
-            default
-        } else mapToType(filteredPropertiesMap)
 
-        return objects.property(T::class.java).apply { convention(gradlePropOrEnvProperties) }
+        val gradlePropOrEnvProperties: T = if (filteredPropertiesMap.isEmpty()) {
+            defaultValue
+        } else
+            mapToType(filteredPropertiesMap)
+
+        return objects.property(T::class.java)
+            .apply { convention(gradlePropOrEnvProperties) }
     }
 
-    internal inline fun <reified T> listProperty(
+    private inline fun <reified T> listProperty(
         property: String,
+        defaultList: List<T>,
         mapToType: (List<List<String>>) -> List<T>
     ): ListProperty<T> {
 
         val filteredPropertiesMap = findProperties(property, propPrefix, envPrefix, project)
         val propAsList = convertToList(filteredPropertiesMap)
-        val gradlePropOrEnvProperties = mapToType(propAsList)
 
-        return objects.listProperty(T::class.java).apply { convention(gradlePropOrEnvProperties) }
+        val gradlePropOrEnvProperties = if (propAsList.isEmpty()) {
+            defaultList
+        } else
+            mapToType(propAsList)
+
+        return objects.listProperty(T::class.java)
+            .apply { convention(gradlePropOrEnvProperties) }
     }
 
     private fun convertToList(propertiesMap: Map<String, String>): List<List<String>> =
@@ -70,13 +74,19 @@ abstract class PropertyHandler @Inject constructor(
 
         val propertiesMap: Map<String, String> = project.properties.entries
             .filter { !it.key.isNullOrBlank() }
-            .filter { it.key.matches("""^$propPrefix$name\.\d+$""".toRegex()) || it.key.matches("""^$propPrefix$name$""".toRegex()) }
+            .filter { it.key.matches("""^$propPrefix$name(\.\d+)?$""".toRegex()) }
             .associate { it.key.uppercase().replace(".", "_") to it.value.toString() }
 
         val environmentMap: Map<String, String> = System.getenv()
             .filter { !it.key.isNullOrBlank() }
-            .filter { it.key.matches("""^$envPrefix${name.uppercase()}\.\d+$""".toRegex()) || it.key.matches("""^$envPrefix${name.uppercase()}$""".toRegex()) }
+            .filter { it.key.matches("""^$envPrefix${name.uppercase()}(\.\d+)?$""".toRegex()) }
 
         return environmentMap + propertiesMap
+    }
+
+    companion object {
+
+        val toStringList: (List<List<String>>) -> List<String> =
+            { list: List<List<String>> -> list.flatten() }
     }
 }
