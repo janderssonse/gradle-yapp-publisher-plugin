@@ -47,6 +47,7 @@ object ConfigurationData {
        |yapp.mavenPublishing.licenseComments=property comments
             
        |yapp.mavenPublishing.developer=property developerid,property developername,property developeremail
+       |yapp.mavenPublishing.developer.2=property developerid2,property developername2,property developeremail2
        |yapp.mavenPublishing.organization=property developerorganization
        |yapp.mavenPublishing.organizationUrl=property developerorganizationurl
 
@@ -146,6 +147,7 @@ targets.add("maven_central")
             Pair("${envPrefix}LICENSEDISTRIBUTION", "yapp.mavenPublishing.licenseDistribution"),
             Pair("${envPrefix}LICENSECOMMENTS", "yapp.mavenPublishing.licenseComments"),
             Pair("${envPrefix}DEVELOPER", "yapp.mavenPublishing.developerId,yapp.mavenPublishing.developerName, yapp.mavenPublishing.developerEmail"),
+            Pair("${envPrefix}DEVELOPER.2", "yapp.mavenPublishing.developerId2,yapp.mavenPublishing.developerName2, yapp.mavenPublishing.developerEmail2"),
             Pair("${envPrefix}ORGANIZATION", "yapp.mavenPublishing.organization"),
             Pair("${envPrefix}ORGANIZATIONURL", "yapp.mavenPublishing.organizationUrl"),
             Pair("${envPrefix}SCMURL", "yapp.mavenPublishing.scmUrl"),

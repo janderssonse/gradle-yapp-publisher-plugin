@@ -27,6 +27,7 @@ class YappPublisher : Plugin<Project> {
         project.afterEvaluate {
             configurePublishingTargets(project)
             registerTasks(project)
+
             projectInfo(project)
         }
     }

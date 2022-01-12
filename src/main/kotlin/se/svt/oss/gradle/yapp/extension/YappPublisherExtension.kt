@@ -27,8 +27,8 @@ open class YappPublisherExtension @Inject constructor(project: Project, objects:
     fun gradlePortalPublishing(action: Action<in GradlePluginPublishingExtension>) =
         action.execute(gradlePortalPublishing)
 
-    var withoutSource: Property<Boolean> = objects.propBool("withoutSource", propPrefix, envPrefix, project = project)
-    var withoutDoc: Property<Boolean> = objects.propBool("withoutDoc", propPrefix, envPrefix, project = project)
-    var dokkaPublishings: ListProperty<String> = propertyList("dokkaPublishings") { map -> map.values.first() }
-    var targets: ListProperty<String> = propertyList("targets") { map -> map.values.first() }
+    var withoutSource: Property<Boolean> = propertyBool("withoutSource")
+    var withoutDoc: Property<Boolean> = propertyBool("withoutDoc")
+    var dokkaPublishings: ListProperty<String> = listProperty("dokkaPublishings") { list: List<List<String>> -> list.flatten() }
+    var targets: ListProperty<String> = listProperty("targets") { list: List<List<String>> -> list.flatten() }
 }

@@ -1,6 +1,6 @@
 
 plugins {
-   `maven-publish`
+   //`maven-publish`
     `java-gradle-plugin`
     signing
     idea
@@ -9,9 +9,9 @@ plugins {
     id("se.ascp.gradle.gradle-versions-filter") version "0.1.10"
     id("org.jmailen.kotlinter") version "3.7.0"
     id("org.owasp.dependencycheck") version "6.5.0.1"
-    id("com.gradle.plugin-publish") version "0.18.0"
+    //id("com.gradle.plugin-publish") version "0.18.0"
     id("pl.allegro.tech.build.axion-release") version "1.13.6"
-   // id("se.svt.oss.gradle-yapp-publisher-plugin") version "0.1.33"
+    id("se.svt.oss.gradle-yapp-publisher-plugin") version "0.1.33"
 }
 
 group = "se.svt.oss"
@@ -45,7 +45,7 @@ tasks {
     }
 }
 
-pluginBundle {
+/* pluginBundle {
     website = "https://github.com/svt/gradle-yapp-publisher-plugin"
     vcsUrl = "https://github.com/svt/gradle-yapp-publisher-plugin.git"
     tags = listOf("maven central", "gradle portal", "publish")
@@ -59,7 +59,7 @@ gradlePlugin {
             description = project.description
         }
     }
-}
+}*/
 
 
 kotlin {

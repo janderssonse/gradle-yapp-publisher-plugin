@@ -31,6 +31,13 @@
             <organization>yapp.mavenPublishing.organization</organization>
             <organizationUrl>yapp.mavenPublishing.organizationUrl</organizationUrl>
         </developer>
+        <developer>
+            <id>yapp.mavenPublishing.developerId2</id>
+            <name>yapp.mavenPublishing.developerName2</name>
+            <email>yapp.mavenPublishing.developerEmail2</email>
+            <organization>yapp.mavenPublishing.organization</organization>
+            <organizationUrl>yapp.mavenPublishing.organizationUrl</organizationUrl>
+        </developer>
     </developers>
     <scm>
         <connection>yapp.mavenPublishing.scmConnection</connection>

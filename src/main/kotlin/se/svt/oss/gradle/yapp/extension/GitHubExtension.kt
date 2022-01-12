@@ -8,6 +8,6 @@ import javax.inject.Inject
 open class GitHubExtension @Inject constructor(project: Project, objects: ObjectFactory) :
     MavenPublishingExtension(project, objects, "yapp.github.", "YAPP_GITHUB_") {
 
-    var namespace: Property<String> = property("namespace")
-    var repoName: Property<String> = property("reponame")
+    var namespace: Property<String> = propertyString("namespace")
+    var repoName: Property<String> = propertyString("reponame")
 }

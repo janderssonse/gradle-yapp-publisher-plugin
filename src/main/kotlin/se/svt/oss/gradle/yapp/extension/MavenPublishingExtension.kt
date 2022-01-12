@@ -15,46 +15,51 @@ open class MavenPublishingExtension @Inject constructor(
 
     var mavenCentralLegacyUrl: Property<Boolean> = propertyBool("mavenCentralLegacyUrl")
 
-    open var artifactId: Property<String> = property("artifactId")
-    open var groupId: Property<String> = property("groupId")
-    open var version: Property<String> = property("version")
-    var name: Property<String> = property("name")
+    open var artifactId: Property<String> = propertyString("artifactId")
+    open var groupId: Property<String> = propertyString("groupId")
+    open var version: Property<String> = propertyString("version")
+    var name: Property<String> = propertyString("name")
 
-    var description: Property<String> = property("description")
-    var url: Property<String> = property("url")
-    var inceptionYear: Property<String> = property("inceptionYear")
+    var description: Property<String> = propertyString("description")
+    var url: Property<String> = propertyString("url")
+    var inceptionYear: Property<String> = propertyString("inceptionYear")
 
-    var licenseName: Property<String> = property("licenseName")
-    var licenseUrl: Property<String> = property("licenseUrl")
+    var licenseName: Property<String> = propertyString("licenseName")
+    var licenseUrl: Property<String> = propertyString("licenseUrl")
     var licenseDistribution: Property<String> =
-        property("licenseDistribution")
-    var licenseComments: Property<String> = property("licenseComments")
+        propertyString("licenseDistribution")
+    var licenseComments: Property<String> = propertyString("licenseComments")
 
-    var developers = propertyList<Developer>("developer") { map ->
-        map.values.map {
+    var developers = listProperty("developer", Developer.stringListToDev)
 
-            Developer(
-                it.getOrElse(0, { "a" }),
-                it.getOrElse(1, { "b" }),
-                it.getOrElse(2, { "c" })
-            )
-        }
-    }
+    var organization: Property<String> = propertyString("organization")
+    var organizationUrl: Property<String> = propertyString("organizationUrl")
 
-    var organization: Property<String> = property("organization")
-    var organizationUrl: Property<String> = property("organizationUrl")
+    var scmUrl: Property<String> = propertyString("scmUrl")
 
-    var scmUrl: Property<String> = property("scmUrl")
+    var scmConnection: Property<String> = propertyString("scmConnection")
+    var scmDeveloperConnection: Property<String> = propertyString("scmDeveloperConnection")
 
-    var scmConnection: Property<String> = property("scmConnection")
-    var scmDeveloperConnection: Property<String> = property("scmDeveloperConnection")
-
-    open var user: Property<String> = property("user")
-    open var password: Property<String> = property("password")
-    open var token: Property<String> = property("token")
+    open var user: Property<String> = propertyString("user")
+    open var password: Property<String> = propertyString("password")
+    open var token: Property<String> = propertyString("token")
 
     open var directReleaseToMavenCentral: Property<Boolean> = propertyBool("directReleaseToMavenCentral")
 }
 
-data class Developer(val id: String, val name: String, val email: String) { // : StringConvertable<Developer> {
+data class Developer(val id: String, val name: String, val email: String) {
+
+    companion object {
+        val stringListToDev: (List<List<String>>) -> List<Developer> =
+            { list ->
+                list.map {
+
+                    Developer(
+                        it.getOrElse(0, { "a" }),
+                        it.getOrElse(1, { "b" }),
+                        it.getOrElse(2, { "c" })
+                    )
+                }
+            }
+    }
 }

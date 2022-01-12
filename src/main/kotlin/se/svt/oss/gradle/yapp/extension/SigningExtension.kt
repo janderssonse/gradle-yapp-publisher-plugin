@@ -8,10 +8,9 @@ import javax.inject.Inject
 open class SigningExtension @Inject constructor(project: Project, objects: ObjectFactory) :
     PropertyHandler(project, objects, "yapp.signing.", "YAPP_SIGNING_") {
 
-    var enabled: Property<Boolean> = objects.propBool("enabled", propPrefix, envPrefix, project = project)
-    var signSnapshot: Property<Boolean> =
-        objects.propBool("signSnapshot", propPrefix, envPrefix, project = project)
-    var keyId: Property<String> = objects.prop("keyId", propPrefix, envPrefix, project = project)
-    var keySecret: Property<String> = objects.prop("keySecret", propPrefix, envPrefix, project = project)
-    var key: Property<String> = objects.prop("key", propPrefix, envPrefix, project = project)
+    var enabled: Property<Boolean> = propertyBool("enabled")
+    var signSnapshot: Property<Boolean> = propertyBool("signSnapshot")
+    var keyId: Property<String> = propertyString("keyId")
+    var keySecret: Property<String> = propertyString("keySecret")
+    var key: Property<String> = propertyString("key")
 }

@@ -9,19 +9,19 @@ import javax.inject.Inject
 open class GradlePluginPublishingExtension @Inject constructor(project: Project, objects: ObjectFactory) :
     PropertyHandler(project, objects, "yapp.gradleplugin.", "YAPP_GRADLEPLUGIN_") {
 
-    var id: Property<String> = property("id")
-    var webSite: Property<String> = property("web")
-    var vcsUrl: Property<String> = property("vcs")
-    var tags: ListProperty<String> = propertyList("tags") { map -> map.values.first() }
+    var id: Property<String> = propertyString("id")
+    var webSite: Property<String> = propertyString("web")
+    var vcsUrl: Property<String> = propertyString("vcs")
+    var tags: ListProperty<String> = listProperty("tags") { list: List<List<String>> -> list.flatten() }
     var implementationClass: Property<String> =
-        property("class")
+        propertyString("class")
     var description: Property<String> =
-        property("description")
+        propertyString("description")
     var displayName: Property<String> =
-        property("displayname")
+        propertyString("displayname")
 
     var key: Property<String> =
-        property("key")
+        propertyString("key")
     var keySecret: Property<String> =
-        property("keySecret")
+        propertyString("keySecret")
 }
