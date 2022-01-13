@@ -4,53 +4,78 @@ import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.TaskProvider
-import se.svt.oss.gradle.yapp.artifact.Dokka.DokkaHtml
-import se.svt.oss.gradle.yapp.artifact.Dokka.DokkaJavaDoc
-import se.svt.oss.gradle.yapp.extension.YappPublisherExtension
+import se.svt.oss.gradle.yapp.artifact.doc.JavaDoc
+import se.svt.oss.gradle.yapp.artifact.doc.JavaDocEmpty
+import se.svt.oss.gradle.yapp.artifact.doc.dokka.DokkaHtml
+import se.svt.oss.gradle.yapp.artifact.doc.dokka.DokkaJavaDoc
+import se.svt.oss.gradle.yapp.artifact.source.AndroidSource
+import se.svt.oss.gradle.yapp.artifact.source.Source
+import se.svt.oss.gradle.yapp.artifact.source.SourceEmpty
 import se.svt.oss.gradle.yapp.publishingtarget.PublishingTargetType
+import se.svt.oss.gradle.yapp.yappExtension
 
 data class ArtifactConfigure(
     val project: Project,
-    val publishTarget: PublishingTargetType,
+    val publishTarget: PublishingTargetType
 ) {
 
-    fun yappExtension(): YappPublisherExtension = project.extensions.getByType(YappPublisherExtension::class.java)
-
     fun configure() {
-        doc()
-        if (project.plugins.hasPlugin("com.android.library")) {
+        configureDocumentationArtifact()
+        configureSourceArtifact()
+    }
 
-            project.afterEvaluate {
-                addArtifact(AndroidSource.source("androidSourcesGen", project))
-            }
-        } else {
-            Source(project)
+    private fun configureDocumentationArtifact() {
+
+        when {
+            project.yappExtension().emptyDocArtifact.get() -> addEmptyDocArtifact()
+            project.yappExtension().withDocArtifact.get() -> addDocArtifact()
         }
     }
 
-    private fun doc() {
-        /*if (project.plugins.hasPlugin("com.android.library")) {
-            project.afterEvaluate {
-                addArtifact(AndroidDoc.doc("androidDocGen", project))
-            }
+    private fun configureSourceArtifact() {
+        when {
+            project.yappExtension().emptySourceArtifact.get() -> addEmptySourceArtifact()
+            project.yappExtension().withDocArtifact.get() -> addSourceArtifact()
+        }
+    }
 
-        } else */
+    private fun addEmptyDocArtifact() {
+        val emptyDoc = project.tasks.register("javadocEmpty", JavaDocEmpty::class.java)
+        addArtifact(emptyDoc)
+    }
+
+    private fun addDocArtifact() {
         if (project.plugins.hasPlugin("org.jetbrains.dokka")) {
-            if (yappExtension().dokkaPublishings.get().contains("javadoc"))
+            if (project.yappExtension().dokkaPublishings.get().contains("javadoc"))
                 addArtifact(DokkaJavaDoc.doc("dokkaJavadocGen", project))
-            if (yappExtension().dokkaPublishings.get().contains("html"))
+            if (project.yappExtension().dokkaPublishings.get().contains("html"))
                 addArtifact(DokkaHtml.doc("dokkaHtmlGen", project))
-            if (yappExtension().dokkaPublishings.get().contains("gfm"))
+            if (project.yappExtension().dokkaPublishings.get().contains("gfm"))
                 addArtifact(DokkaHtml.doc("dokkaGfmGen", project))
-            if (yappExtension().dokkaPublishings.get().contains("jekyll")) println()
+            if (project.yappExtension().dokkaPublishings.get().contains("jekyll")) println()
             addArtifact(DokkaHtml.doc("dokkaJekyllGen", project))
         } else {
             JavaDoc(project)
         }
     }
 
-    private fun addArtifact(provider: TaskProvider<*>) {
+    private fun addEmptySourceArtifact() {
+        val emptySource = project.tasks.register("sourcesEmpty", SourceEmpty::class.java)
+        addArtifact(emptySource)
+    }
 
+    private fun addSourceArtifact() {
+        when {
+            project.plugins.hasPlugin("com.android.library") -> {
+                project.afterEvaluate {
+                    addArtifact(AndroidSource.source("androidSourcesGen", project))
+                }
+            }
+            else -> Source(project)
+        }
+    }
+
+    private fun addArtifact(provider: TaskProvider<*>) {
         project.extensions.configure(PublishingExtension::class.java) { pe ->
 
             pe.publications { publications ->
@@ -68,6 +93,13 @@ data class ArtifactConfigure(
         }
     }
 }
+
+/*if (project.plugins.hasPlugin("com.android.library")) {
+project.afterEvaluate {
+    addArtifact(AndroidDoc.doc("androidDocGen", project))
+}
+
+} else */
 /*
 project.extensions.configure(PublishingExtension::class.java) { pe ->
 

@@ -1,4 +1,4 @@
-package se.svt.oss.gradle.yapp.artifact
+package se.svt.oss.gradle.yapp.artifact.source
 
 import com.android.build.gradle.LibraryExtension
 import org.gradle.api.Project

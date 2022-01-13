@@ -4,6 +4,7 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import se.svt.oss.gradle.yapp.publishingtarget.BasePublishTarget
 import se.svt.oss.gradle.yapp.publishingtarget.PublishingTargetType
+import se.svt.oss.gradle.yapp.yappExtension
 import kotlin.reflect.KClass
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findAnnotation
@@ -84,13 +85,13 @@ fun fetchPluginExtensionProperties(target: BasePublishTarget): PluginExtensionPr
     when (target.publishingTargetType) {
         PublishingTargetType.GRADLE_PORTAL -> {
             val props = fetchExtensionPropertiesAnnotations(GradlePluginPublishingExtension::class)
-            val extension = target.yappExtension.gradlePortalPublishing
+            val extension = target.project.yappExtension().gradlePortalPublishing
             pluginExtensionProperties =
                 buildExtensionProperties("Gradle Portal Plugin", props, extension)
         }
         PublishingTargetType.MAVEN_CENTRAL -> {
             val props = fetchExtensionPropertiesAnnotations(MavenPublishingExtension::class)
-            val extension = target.yappExtension.mavenPublishing
+            val extension = target.project.yappExtension().mavenPublishing
             pluginExtensionProperties =
                 buildExtensionProperties("Maven Central Plugin", props, extension)
         }
@@ -98,7 +99,7 @@ fun fetchPluginExtensionProperties(target: BasePublishTarget): PluginExtensionPr
             val props =
                 fetchExtensionPropertiesAnnotations(GitLabExtension::class) +
                     fetchExtensionPropertiesAnnotations(MavenPublishingExtension::class, openOnly = true)
-            val extension = target.yappExtension.gitLab
+            val extension = target.project.yappExtension().gitLab
 
             pluginExtensionProperties = buildExtensionProperties("Gitlab Plugin", props, extension)
         }
@@ -106,7 +107,7 @@ fun fetchPluginExtensionProperties(target: BasePublishTarget): PluginExtensionPr
             val props =
                 fetchExtensionPropertiesAnnotations(GitHubExtension::class) +
                     fetchExtensionPropertiesAnnotations(MavenPublishingExtension::class, openOnly = true)
-            val extension = target.yappExtension.gitHub
+            val extension = target.project.yappExtension().gitHub
             pluginExtensionProperties = buildExtensionProperties("Github Plugin", props, extension)
         }
         else -> {

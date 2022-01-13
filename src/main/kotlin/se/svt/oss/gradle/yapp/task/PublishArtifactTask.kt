@@ -9,6 +9,7 @@ import se.svt.oss.gradle.yapp.publishingtarget.PublishingTargetType.GRADLE_PORTA
 import se.svt.oss.gradle.yapp.publishingtarget.PublishingTargetType.MAVEN_CENTRAL
 import se.svt.oss.gradle.yapp.publishingtarget.PublishingTargetType.UNKNOWN
 import se.svt.oss.gradle.yapp.publishingtarget.publishingTargets
+import se.svt.oss.gradle.yapp.yappExtension
 
 abstract class PublishArtifactTask( // @Inject constructor(
 //    private val projectType: ProjectType,
@@ -24,7 +25,7 @@ abstract class PublishArtifactTask( // @Inject constructor(
                     dependsOn(project.tasks.getByName("publishPlugins"))
                 }
                 MAVEN_CENTRAL -> {
-                    if (it.yappExtension.mavenPublishing.directReleaseToMavenCentral.get()) {
+                    if (project.yappExtension().mavenPublishing.directReleaseToMavenCentral.get()) {
                         dependsOn(project.tasks.getByName("publishToSonatype"))
                         dependsOn(project.tasks.getByName("closeAndReleaseSonatypeStagingRepository"))
                     } else {

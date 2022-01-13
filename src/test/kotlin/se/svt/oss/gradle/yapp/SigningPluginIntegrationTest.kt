@@ -39,7 +39,7 @@ class SigningPluginIntegrationTest : AbstractIntegrationTest() {
             ConfigurationData.yappBuildGradleConfSigning(signingKey, true),
             pathConf = pathConf
         )
-        assertIterableEquals(generatedSignatures(pathConf.libraryDirName, "signing", version), signatures)
+        assertIterableEquals(generatedSignatures(pathConf.libraryDirName, SIGNING, version), signatures)
 
         version = "0.0.7-SNAPSHOT"
 

@@ -146,6 +146,7 @@ abstract class AbstractIntegrationTest {
         const val ORDER: String = "order"
         const val PROPERTY: String = "property"
         const val BUILD: String = "build"
+        const val ARTIFACTS: String = "artifacts"
         const val ENV: String = "env"
 
         const val JAVALIB: String = "javalib"

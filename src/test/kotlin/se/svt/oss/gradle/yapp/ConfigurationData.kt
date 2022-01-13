@@ -72,10 +72,18 @@ object ConfigurationData {
         signingEnabled: Boolean = false,
         signSnapshot: Boolean = false,
         name: String = "pn",
+        withSourceArtifact: Boolean = true,
+        withDocArtifact: Boolean = true,
+        emptySourceArtifact: Boolean = false,
+        emptyDocArtifact: Boolean = false,
     ) = """
        
 yapp {
     targets.add("maven_central")
+    withSourceArtifact.set($withSourceArtifact)
+    withDocArtifact.set($withDocArtifact)
+    emptySourceArtifact.set($emptySourceArtifact)
+    emptyDocArtifact.set($emptyDocArtifact)
     
     mavenPublishing {
         groupId.set("$group")
@@ -146,8 +154,14 @@ targets.add("maven_central")
             Pair("${envPrefix}LICENSEURL", "yapp.mavenPublishing.licenseUrl"),
             Pair("${envPrefix}LICENSEDISTRIBUTION", "yapp.mavenPublishing.licenseDistribution"),
             Pair("${envPrefix}LICENSECOMMENTS", "yapp.mavenPublishing.licenseComments"),
-            Pair("${envPrefix}DEVELOPER", "yapp.mavenPublishing.developerId,yapp.mavenPublishing.developerName, yapp.mavenPublishing.developerEmail"),
-            Pair("${envPrefix}DEVELOPER.2", "yapp.mavenPublishing.developerId2,yapp.mavenPublishing.developerName2, yapp.mavenPublishing.developerEmail2"),
+            Pair(
+                "${envPrefix}DEVELOPER",
+                "yapp.mavenPublishing.developerId,yapp.mavenPublishing.developerName, yapp.mavenPublishing.developerEmail"
+            ),
+            Pair(
+                "${envPrefix}DEVELOPER.2",
+                "yapp.mavenPublishing.developerId2,yapp.mavenPublishing.developerName2, yapp.mavenPublishing.developerEmail2"
+            ),
             Pair("${envPrefix}ORGANIZATION", "yapp.mavenPublishing.organization"),
             Pair("${envPrefix}ORGANIZATIONURL", "yapp.mavenPublishing.organizationUrl"),
             Pair("${envPrefix}SCMURL", "yapp.mavenPublishing.scmUrl"),

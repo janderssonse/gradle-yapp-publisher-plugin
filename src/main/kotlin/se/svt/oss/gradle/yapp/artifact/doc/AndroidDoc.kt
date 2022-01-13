@@ -1,4 +1,4 @@
-package se.svt.oss.gradle.yapp.artifact
+package se.svt.oss.gradle.yapp.artifact.doc
 
 import com.android.build.gradle.LibraryExtension
 import org.gradle.api.Project
@@ -7,6 +7,9 @@ import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
 import java.io.File
 
+// NOTE: we are using dokka for kotlin based android projects, this code would be and impl for java based android projects
+// currently not used, and maybe there are better ways. This is borrowed from various blog posts , and
+// there has to be a better way. To investigae.
 open class AndroidDoc : Javadoc() {
 
     init {

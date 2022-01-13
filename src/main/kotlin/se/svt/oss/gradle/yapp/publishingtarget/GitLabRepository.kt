@@ -3,6 +3,7 @@ package se.svt.oss.gradle.yapp.publishingtarget
 import org.gradle.api.Project
 import se.svt.oss.gradle.yapp.artifact.ArtifactConfigure
 import se.svt.oss.gradle.yapp.plugin.MavenPublishingPlugin
+import se.svt.oss.gradle.yapp.yappExtension
 import java.net.URI
 
 internal class GitLabRepository(
@@ -15,13 +16,13 @@ internal class GitLabRepository(
         // val tokenTypes = listOf("Private-Token", "Deploy-Token", "Job-Token")
 
         MavenPublishingPlugin(project).configure(credentials(), publishingTargetType)
-        ArtifactConfigure(project, publishingTargetType,).configure()
+        ArtifactConfigure(project, publishingTargetType).configure()
     }
 
     private fun gitLabUri(): URI {
-        return when (yappExtension.gitLab.endpointLevel.get()) {
-            "project" -> URI("${yappExtension.gitLab.host.get()}/api/v4/projects/${yappExtension.gitLab.gitlabProjectId.get()}/packages/maven")
-            "group" -> URI("${yappExtension.gitLab.host.get()}/api/v4/groups/${yappExtension.gitLab.gitlabGroupId.get()}/-/packages/maven")
+        return when (project.yappExtension().gitLab.endpointLevel.get()) {
+            "project" -> URI("${project.yappExtension().gitLab.host.get()}/api/v4/projects/${project.yappExtension().gitLab.gitlabProjectId.get()}/packages/maven")
+            "group" -> URI("${project.yappExtension().gitLab.host.get()}/api/v4/groups/${project.yappExtension().gitLab.gitlabGroupId.get()}/-/packages/maven")
             else -> {
                 throw IllegalArgumentException("Submit at valid deployType - project, group")
             }
@@ -30,7 +31,7 @@ internal class GitLabRepository(
 
     private fun credentials(): RepositoryConfiguration {
         val credential = RepositoryCredential(
-            yappExtension.gitLab.tokenType.get(), yappExtension.gitLab.token.get()
+            project.yappExtension().gitLab.tokenType.get(), project.yappExtension().gitLab.token.get()
         )
         return RepositoryConfiguration(gitLabUri(), gitLabUri(), "GitLab", credential)
     }

@@ -27,8 +27,21 @@ open class YappPublisherExtension @Inject constructor(project: Project, objects:
     fun gradlePortalPublishing(action: Action<in GradlePluginPublishingExtension>) =
         action.execute(gradlePortalPublishing)
 
-    var withoutSource: Property<Boolean> = propertyBool("withoutSource")
-    var withoutDoc: Property<Boolean> = propertyBool("withoutDoc")
+    @ExtensionProperty(name = "withSourceArtifact")
+    var withSourceArtifact: Property<Boolean> = propertyBool("withSourceArtifact", true)
+
+    @ExtensionProperty(name = "withDocArtifact")
+    var withDocArtifact: Property<Boolean> = propertyBool("withDocArtifact", true)
+
+    @ExtensionProperty(name = "emptySourceArtifact")
+    var emptySourceArtifact: Property<Boolean> = propertyBool("emptySourceArtifact")
+
+    @ExtensionProperty(name = "emptyDocArtifact")
+    var emptyDocArtifact: Property<Boolean> = propertyBool("emptyDocArtifact")
+
+    @ExtensionProperty(name = "dokkaPublishings")
     var dokkaPublishings: ListProperty<String> = propertyList("dokkaPublishings", toStringList)
+
+    @ExtensionProperty(name = "targets")
     var targets: ListProperty<String> = propertyList("targets", toStringList)
 }

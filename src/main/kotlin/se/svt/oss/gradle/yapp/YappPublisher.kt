@@ -76,3 +76,4 @@ class YappPublisher : Plugin<Project> {
     }
 }
 fun Project.isSnapShot(): Boolean = version.toString().contains("SNAPSHOT")
+fun Project.yappExtension(): YappPublisherExtension = project.extensions.getByType(YappPublisherExtension::class.java)

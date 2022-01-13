@@ -36,7 +36,6 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.8.2")
     testImplementation("uk.org.webcompere:system-stubs-jupiter:1.2.0")
-
 }
 
 tasks {
@@ -44,7 +43,9 @@ tasks {
         useJUnitPlatform()
     }
 }
+yapp{
 
+}
 /* pluginBundle {
     website = "https://github.com/svt/gradle-yapp-publisher-plugin"
     vcsUrl = "https://github.com/svt/gradle-yapp-publisher-plugin.git"
@@ -70,8 +71,9 @@ kotlin {
 }
 
 java {
-    withSourcesJar()
-    withJavadocJar()
+
+    //withSourcesJar()
+    //withJavadocJar()
 }
 
 tasks.named<Wrapper>("wrapper") {
