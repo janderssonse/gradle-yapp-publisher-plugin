@@ -8,9 +8,14 @@ import javax.inject.Inject
 open class GitLabExtension @Inject constructor(project: Project, objects: ObjectFactory) :
     MavenPublishingExtension(project, objects, "yapp.gitlab.", "YAPP_GITLAB_") {
 
+    @ExtensionProperty(name = "host")
     var host: Property<String> = propertyString("host")
+    @ExtensionProperty(name = "tokenType")
     var tokenType: Property<String> = propertyString("tokenType")
+    @ExtensionProperty(name = "endpointLevel")
     var endpointLevel: Property<String> = propertyString("endpointLevel")
+    @ExtensionProperty(name = "glGroupId")
     var gitlabGroupId: Property<String> = propertyString("glGroupId")
+    @ExtensionProperty(name = "glProjectId")
     var gitlabProjectId: Property<String> = propertyString("glProjectId")
 }

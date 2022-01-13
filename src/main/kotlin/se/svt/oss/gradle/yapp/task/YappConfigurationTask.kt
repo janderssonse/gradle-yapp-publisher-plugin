@@ -3,6 +3,7 @@ package se.svt.oss.gradle.yapp.task
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import se.svt.oss.gradle.yapp.config.projectType
+import se.svt.oss.gradle.yapp.publishingtarget.fetchPluginExtensionsPropertiesForTarget
 import se.svt.oss.gradle.yapp.publishingtarget.publishingTargets
 
 abstract class YappConfigurationTask : DefaultTask() {
@@ -14,14 +15,15 @@ abstract class YappConfigurationTask : DefaultTask() {
     @TaskAction
     fun printConfiguration() {
 
-        project.publishingTargets().forEach { println(it.name()) }
+        println("Yapp Publisher Plugin")
+        println("Name: ${project.name}, Type: ${project.projectType().javaClass.simpleName}")
 
-        println(
-            """
-       
-                | Yapp Publisher Plugin: Name: ${project.name}, Type: ${project.projectType().javaClass.simpleName}, Target: ${project.publishingTargets().map { it.name() }}
-                
-            """.trimIndent()
-        )
+        println("\nConfigurations\n")
+
+        project.publishingTargets().forEach { target ->
+            val properties = fetchPluginExtensionsPropertiesForTarget(target)
+            properties.prettyPrint()
+            println("\n")
+        }
     }
 }
