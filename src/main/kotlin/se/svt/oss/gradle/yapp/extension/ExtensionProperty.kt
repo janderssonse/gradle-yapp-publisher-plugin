@@ -83,6 +83,14 @@ fun fetchPluginExtensionProperties(target: BasePublishTarget): PluginExtensionPr
     lateinit var pluginExtensionProperties: PluginExtensionProperties
 
     when (target.publishingTargetType) {
+        PublishingTargetType.ARTIFACTORY -> {
+            val props =
+                fetchExtensionPropertiesAnnotations(ArtifactoryExtension::class) +
+                    fetchExtensionPropertiesAnnotations(MavenPublishingExtension::class, openOnly = true)
+            val extension = target.project.yappExtension().artifactoryPublishing
+
+            pluginExtensionProperties = buildExtensionProperties("Artifactory Plugin", props, extension)
+        }
         PublishingTargetType.GRADLE_PORTAL -> {
             val props = fetchExtensionPropertiesAnnotations(GradlePluginPublishingExtension::class)
             val extension = target.project.yappExtension().gradlePortalPublishing

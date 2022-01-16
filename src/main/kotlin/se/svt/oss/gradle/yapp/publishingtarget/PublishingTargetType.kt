@@ -4,7 +4,10 @@ import GradlePluginPortal
 import org.gradle.api.Project
 
 enum class PublishingTargetType {
-
+    ARTIFACTORY {
+        override fun publishTarget(project: Project): BasePublishTarget =
+            ArtifactoryRepository(project, this)
+    },
     GRADLE_PORTAL {
         override fun publishTarget(project: Project): BasePublishTarget =
             GradlePluginPortal(project, this)

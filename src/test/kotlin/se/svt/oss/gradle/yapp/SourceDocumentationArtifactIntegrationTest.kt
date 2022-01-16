@@ -89,7 +89,7 @@ class SourceDocumentationArtifactIntegrationTest : AbstractIntegrationTest() {
 
     @Test
     fun `no source artifact and no documentation artifacts are published`() {
-        val group = "$TLD.$ARTIFACTS"
+        val group = "$TLD.${ARTIFACTS}Empty"
         val version = "0.0.3-SNAPSHOT"
 
         publishToTmp(
@@ -104,7 +104,7 @@ class SourceDocumentationArtifactIntegrationTest : AbstractIntegrationTest() {
         )
 
         assertIterableEquals(
-            generatedArtifacts(pathConf.libraryDirName, ARTIFACTS, version)
+            generatedArtifacts(pathConf.libraryDirName, ARTIFACTS + "Empty", version)
                 .map { it.name }.toList().sorted(),
             listOf("${pathConf.libraryDirName}-$version.jar")
         )

@@ -3,6 +3,7 @@ package se.svt.oss.gradle.yapp.extension
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import javax.inject.Inject
 
@@ -14,10 +15,19 @@ abstract class PropertyHandler @Inject constructor(
 ) {
 
     internal fun propertyString(property: String, defaultValue: String = "") =
-        simpleProperty(property, defaultValue, { it.first() })
+        simpleProperty(property, defaultValue) { it.first() }
 
     internal fun propertyBool(property: String, defaultValue: Boolean = false) =
-        simpleProperty(property, defaultValue, { it.first().toBooleanStrict() })
+        simpleProperty(property, defaultValue) { it.first().toBooleanStrict() }
+
+    internal fun propertyInt(property: String, defaultValue: Int = 0): Property<Int> =
+        simpleProperty<Int>(property, defaultValue) { it.first().toInt() }
+
+    internal inline fun <reified K, reified V> propertyMap(
+        property: String,
+        toTypeFunction: (List<String>) -> Map<K, V>,
+        defaultValue: Map<K, V> = emptyMap()
+    ) = mapProperty(property, defaultValue, toTypeFunction)
 
     internal inline fun <reified T> propertyList(
         property: String,
@@ -57,6 +67,24 @@ abstract class PropertyHandler @Inject constructor(
             mapToType(propAsList)
 
         return objects.listProperty(T::class.java)
+            .apply { convention(gradlePropOrEnvProperties) }
+    }
+
+    private inline fun <reified K, reified V> mapProperty(
+        property: String,
+        defaultMap: Map<K, V>,
+        toTypeFunction: (List<String>) -> Map<K, V>
+    ): MapProperty<K, V> {
+
+        val filteredPropertiesMap = findProperties(property, propPrefix, envPrefix, project)
+        val propAsList = convertToList(filteredPropertiesMap)
+
+        val gradlePropOrEnvProperties = if (propAsList.isEmpty()) {
+            defaultMap
+        } else
+            toTypeFunction(propAsList.first())
+
+        return objects.mapProperty(K::class.java, V::class.java)
             .apply { convention(gradlePropOrEnvProperties) }
     }
 

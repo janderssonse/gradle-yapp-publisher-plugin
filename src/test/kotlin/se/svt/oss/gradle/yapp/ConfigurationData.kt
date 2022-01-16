@@ -31,21 +31,21 @@ object ConfigurationData {
     }
 
     fun yappPropertiesConf(name: String = pluginName, group: String, version: String) = """
-       |yapp.targets=maven_central 
+       |yapp.targets=maven_central
        |yapp.mavenPublishing.groupId=$group
        |yapp.mavenPublishing.version=$version
        |yapp.mavenPublishing.artifactId=$name
-            
-       |yapp.mavenPublishing.name=property name 
+
+       |yapp.mavenPublishing.name=property name
        |yapp.mavenPublishing.description=property description
        |yapp.mavenPublishing.url=http://propertyurl.se
        |yapp.mavenPublishing.inceptionYear=1901
-                             
+
        |yapp.mavenPublishing.licenseName=property licensename
        |yapp.mavenPublishing.licenseUrl=property licenseurl
        |yapp.mavenPublishing.licenseDistribution=property distribution
        |yapp.mavenPublishing.licenseComments=property comments
-            
+
        |yapp.mavenPublishing.developer=property developerid,property developername,property developeremail
        |yapp.mavenPublishing.developer.2=property developerid2,property developername2,property developeremail2
        |yapp.mavenPublishing.organization=property developerorganization
@@ -60,7 +60,7 @@ object ConfigurationData {
        |yapp.signing.keyId=propsk
        |yapp.signing.password=propsp
        |yapp.signing.key=propkf
-       
+
        |yapp.ossrhUser=propu
        |yapp.ossrhPassword=proppw
     """.trimMargin()
@@ -77,14 +77,14 @@ object ConfigurationData {
         emptySourceArtifact: Boolean = false,
         emptyDocArtifact: Boolean = false,
     ) = """
-       
+
 yapp {
     targets.add("maven_central")
     withSourceArtifact.set($withSourceArtifact)
     withDocArtifact.set($withDocArtifact)
     emptySourceArtifact.set($emptySourceArtifact)
     emptyDocArtifact.set($emptyDocArtifact)
-    
+
     mavenPublishing {
         groupId.set("$group")
         version.set("$version")
@@ -99,9 +99,9 @@ yapp {
         licenseDistribution.set("pld")
         licenseComments.set("plc")
 
-        
+
         developers.set(listOf(Developer("pdi","pdn","pde"),Developer("pdi2","pdn2","pde2")))
-        
+
 
         organization.set("pdo")
         organizationUrl.set("pou")
@@ -110,16 +110,16 @@ yapp {
         scmConnection.set("psc")
         scmDeveloperConnection.set("psd")
     }
-    
-    signing { 
+
+    signing {
         enabled.set($signingEnabled)
         signSnapshot.set($signSnapshot)
         keyId.set("3DC10F04")
         keySecret.set("signing")
         key.set("$signingKey")
     }
-    
-    
+
+
 }
     """.trimIndent()
 
@@ -128,11 +128,11 @@ yapp {
         signingEnabled: Boolean = false,
         signSnapshot: Boolean = false
     ) = """
-       
+
 yapp {
 targets.add("maven_central")
-    
-    signing { 
+
+    signing {
         enabled.set($signingEnabled)
         signSnapshot.set($signSnapshot)
         keyId.set("3DC10F04")
@@ -184,7 +184,7 @@ targets.add("maven_central")
         group: String = "$TLD.svt.oss",
         version: String = "1.0.0-SNAPSHOT"
     ) = """
-    
+
 plugins {
     `maven-publish`
     `java-gradle-plugin`
@@ -202,12 +202,14 @@ repositories {
     gradlePluginPortal()
     mavenCentral()
     google()
-//    maven(url="https://dl.bintray.com/kotlin/dokka")
 }
 
 dependencies {
     api("com.gradle.publish:plugin-publish-plugin:0.16.0")
-    
+
+
+    implementation("org.jfrog.buildinfo:build-info-extractor-gradle:4.26.1")
+    implementation("com.google.guava:guava:31.0.1-android")//needed by artifactorys tasks prop
     compileOnly("com.android.tools.build:gradle:7.0.4")
 
     implementation("io.github.gradle-nexus:publish-plugin:1.1.0")

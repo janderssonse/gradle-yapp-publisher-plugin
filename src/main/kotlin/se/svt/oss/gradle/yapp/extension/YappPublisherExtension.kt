@@ -19,6 +19,7 @@ open class YappPublisherExtension @Inject constructor(project: Project, objects:
     val gitHub = objects.newInstance(GitHubExtension::class.java)
     val signing = objects.newInstance(SigningExtension::class.java)
     val gradlePortalPublishing = objects.newInstance(GradlePluginPublishingExtension::class.java)
+    val artifactoryPublishing = objects.newInstance(ArtifactoryExtension::class.java)
 
     fun mavenPublishing(action: Action<in MavenPublishingExtension>) = action.execute(mavenPublishing)
     fun gitLab(action: Action<in GitLabExtension>) = action.execute(gitLab)
@@ -26,6 +27,7 @@ open class YappPublisherExtension @Inject constructor(project: Project, objects:
     fun signing(action: Action<in SigningExtension>) = action.execute(signing)
     fun gradlePortalPublishing(action: Action<in GradlePluginPublishingExtension>) =
         action.execute(gradlePortalPublishing)
+    fun artifactoryPublishing(action: Action<in ArtifactoryExtension>) = action.execute(artifactoryPublishing)
 
     @ExtensionProperty(name = "withSourceArtifact")
     var withSourceArtifact: Property<Boolean> = propertyBool("withSourceArtifact", true)
