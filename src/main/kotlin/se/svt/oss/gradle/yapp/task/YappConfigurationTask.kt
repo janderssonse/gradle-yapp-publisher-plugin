@@ -3,8 +3,12 @@ package se.svt.oss.gradle.yapp.task
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import se.svt.oss.gradle.yapp.config.projectType
+import se.svt.oss.gradle.yapp.extension.SigningExtension
+import se.svt.oss.gradle.yapp.extension.YappPublisherExtension
+import se.svt.oss.gradle.yapp.extension.fetchPluginExtensionProperties
 import se.svt.oss.gradle.yapp.publishingtarget.fetchPluginExtensionsPropertiesForTarget
 import se.svt.oss.gradle.yapp.publishingtarget.publishingTargets
+import se.svt.oss.gradle.yapp.yappExtension
 
 abstract class YappConfigurationTask : DefaultTask() {
     init {
@@ -20,9 +24,22 @@ abstract class YappConfigurationTask : DefaultTask() {
 
         println("\nConfigurations\n")
 
+        fetchPluginExtensionProperties(
+            "Yapp Publisher Plugin",
+            YappPublisherExtension::class,
+            project.yappExtension()
+        ).prettyPrint()
+        println("\n")
+
+        fetchPluginExtensionProperties(
+            "Signing",
+            SigningExtension::class,
+            project.yappExtension().signing
+        ).prettyPrint()
+        println("\n")
+
         project.publishingTargets().forEach { target ->
-            val properties = fetchPluginExtensionsPropertiesForTarget(target)
-            properties.prettyPrint()
+            fetchPluginExtensionsPropertiesForTarget(target).prettyPrint()
             println("\n")
         }
     }

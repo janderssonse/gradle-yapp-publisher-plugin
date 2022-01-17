@@ -23,10 +23,10 @@ open class ArtifactoryExtension @Inject constructor(project: Project, objects: O
     )
     var publishPom: Property<Boolean> = propertyBool("publishPom", true)
 
-   /* @ExtensionProperty( //TO-DO: fix map support in the annotation parser
+    @ExtensionProperty(
         name = "properties",
         description = "Optional map of properties to attach to all published artifacts"
-    )*/
+    )
     var properties: MapProperty<String, String> = propertyMap("properties", { list -> list.associateWith { it } })
 
     @ExtensionProperty(name = "includeEnvVars")
@@ -58,9 +58,9 @@ open class ArtifactoryExtension @Inject constructor(project: Project, objects: O
     )
     var buildNumber: Property<String> = propertyString("buildNumber")
 
-   /* @ExtensionProperty( //TO-DO fix int support annotation parser
+    @ExtensionProperty(
         name = "timeout",
         description = "The artifactory repository key"
-    )*/
+    )
     var timeout: Property<Int> = propertyInt("timeout", 300)
 }

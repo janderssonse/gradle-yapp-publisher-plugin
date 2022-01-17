@@ -42,6 +42,7 @@ open class MavenPublishingExtension @Inject constructor(
     var licenseComments: Property<String> = propertyString("licenseComments")
 
     @ExtensionProperty(name = "developer")
+    @ExtensionPropertyExtractor(extractor = ExtensionPropertyDeveloperExtractor::class)
     var developers = propertyList("developer", Developer.toDevelopers)
 
     @ExtensionProperty(name = "organization")

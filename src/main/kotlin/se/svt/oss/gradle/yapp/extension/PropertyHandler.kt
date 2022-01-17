@@ -10,8 +10,8 @@ import javax.inject.Inject
 abstract class PropertyHandler @Inject constructor(
     val project: Project,
     private val objects: ObjectFactory,
-    private val propPrefix: String,
-    private val envPrefix: String
+    val propPrefix: String,
+    val envPrefix: String
 ) {
 
     internal fun propertyString(property: String, defaultValue: String = "") =
@@ -100,19 +100,26 @@ abstract class PropertyHandler @Inject constructor(
         project: Project
     ): Map<String, String> {
 
-        val propertiesMap: Map<String, String> = project.properties.entries
-            .filter { !it.key.isNullOrBlank() }
-            .filter { it.key.matches("""^$propPrefix$name(\.\d+)?$""".toRegex()) }
-            .associate { it.key.uppercase().replace(".", "_") to it.value.toString() }
+        val propertiesMap: Map<String, String> = findPropertiesInProject(project, propPrefix, name)
 
-        val environmentMap: Map<String, String> = System.getenv()
-            .filter { !it.key.isNullOrBlank() }
-            .filter { it.key.matches("""^$envPrefix${name.uppercase()}(\.\d+)?$""".toRegex()) }
+        val environmentMap: Map<String, String> = findPropertiesInEnv(envPrefix, name)
 
         return environmentMap + propertiesMap
     }
 
     companion object {
+        fun findPropertiesInEnv(envPrefix: String, name: String): Map<String, String> {
+            return System.getenv()
+                .filter { !it.key.isNullOrBlank() }
+                .filter { it.key.matches("""^$envPrefix${name.uppercase()}(\.\d+)?$""".toRegex()) }
+        }
+
+        fun findPropertiesInProject(project: Project, propPrefix: String, name: String): Map<String, String> {
+            return project.properties.entries
+                .filter { !it.key.isNullOrBlank() }
+                .filter { it.key.matches("""^$propPrefix$name(\.\d+)?$""".toRegex()) }
+                .associate { it.key.uppercase().replace(".", "_") to it.value.toString() }
+        }
 
         val toStringList: (List<List<String>>) -> List<String> =
             { list: List<List<String>> -> list.flatten() }
