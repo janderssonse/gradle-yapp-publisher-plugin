@@ -29,21 +29,41 @@ open class YappPublisherExtension @Inject constructor(project: Project, objects:
         action.execute(gradlePortalPublishing)
     fun artifactoryPublishing(action: Action<in ArtifactoryExtension>) = action.execute(artifactoryPublishing)
 
-    @ExtensionProperty(name = "withSourceArtifact")
+    @ExtensionProperty(
+        name = "withSourceArtifact",
+        description = "Generate a source code artifact"
+    )
     var withSourceArtifact: Property<Boolean> = propertyBool("withSourceArtifact", true)
 
-    @ExtensionProperty(name = "withDocArtifact")
+    @ExtensionProperty(
+        name = "withDocArtifact",
+        description = "Generate a doc artifact"
+    )
     var withDocArtifact: Property<Boolean> = propertyBool("withDocArtifact", true)
 
-    @ExtensionProperty(name = "emptySourceArtifact")
+    @ExtensionProperty(
+        name = "emptySourceArtifact",
+        description = "Generate an empty source artifact (overrides withSourceArtifact"
+    )
     var emptySourceArtifact: Property<Boolean> = propertyBool("emptySourceArtifact")
 
-    @ExtensionProperty(name = "emptyDocArtifact")
+    @ExtensionProperty(
+        name = "emptyDocArtifact",
+        description = "Generates an empty doc artifact (overrides withDocArtifact"
+    )
     var emptyDocArtifact: Property<Boolean> = propertyBool("emptyDocArtifact")
 
-    @ExtensionProperty(name = "dokkaPublishings")
+    @ExtensionProperty(
+        name = "dokkaPublishings",
+        description = "Generates doc artifacts using dokka. Only viable for Kotlin based projects",
+        example = "javadoc", "html"
+    )
     var dokkaPublishings: ListProperty<String> = propertyList("dokkaPublishings", toStringList)
 
-    @ExtensionProperty(name = "targets")
+    @ExtensionProperty(
+        name = "targets",
+        description = "List of targets to publish to",
+        example = "maven_central, github"
+    )
     var targets: ListProperty<String> = propertyList("targets", toStringList)
 }

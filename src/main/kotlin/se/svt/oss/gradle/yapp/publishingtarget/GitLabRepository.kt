@@ -24,7 +24,7 @@ internal class GitLabRepository(
             "project" -> URI("${project.yappExtension().gitLab.host.get()}/api/v4/projects/${project.yappExtension().gitLab.gitlabProjectId.get()}/packages/maven")
             "group" -> URI("${project.yappExtension().gitLab.host.get()}/api/v4/groups/${project.yappExtension().gitLab.gitlabGroupId.get()}/-/packages/maven")
             else -> {
-                throw IllegalArgumentException("Submit at valid deployType - project, group")
+                throw IllegalArgumentException("Submit at valid endpoint level - project, group")
             }
         }
     }

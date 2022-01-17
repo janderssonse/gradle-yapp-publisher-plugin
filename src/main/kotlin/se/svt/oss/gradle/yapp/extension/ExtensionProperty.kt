@@ -24,6 +24,7 @@ import kotlin.reflect.full.memberProperties
 annotation class ExtensionProperty(
     val name: String,
     val description: String = "[null]",
+    val example: String = "[null]",
     val defaultValue: String = "[null]",
     val secret: Boolean = false,
     val mandatory: Boolean = false,

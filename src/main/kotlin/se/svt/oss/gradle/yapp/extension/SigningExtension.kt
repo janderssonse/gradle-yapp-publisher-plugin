@@ -8,14 +8,38 @@ import javax.inject.Inject
 open class SigningExtension @Inject constructor(project: Project, objects: ObjectFactory) :
     PropertyHandler(project, objects, "yapp.signing.", "YAPP_SIGNING_") {
 
-    @ExtensionProperty(name = "enabled")
+    @ExtensionProperty(
+        name = "enabled",
+        description = "Enable signing of artifacts",
+        example = "true"
+    )
     var enabled: Property<Boolean> = propertyBool("enabled")
-    @ExtensionProperty(name = "signSnapshot")
+
+    @ExtensionProperty(
+        name = "signSnapshot",
+        description = "Sign snapshots",
+        example = "true"
+    )
     var signSnapshot: Property<Boolean> = propertyBool("signSnapshot")
-    @ExtensionProperty(name = "keyId")
+
+    @ExtensionProperty(
+        name = "keyId",
+        description = "The public keyId, last 8 digits",
+        example = "abc12345"
+    )
     var keyId: Property<String> = propertyString("keyId")
-    @ExtensionProperty(name = "keySecret", secret = true)
+
+    @ExtensionProperty(
+        name = "keySecret",
+        description = "the password for the key",
+        secret = true
+    )
     var keySecret: Property<String> = propertyString("keySecret")
-    @ExtensionProperty(name = "key")
+
+    @ExtensionProperty(
+        name = "key",
+        description = "The signing GPG key, absolute path to or in text format",
+        example = "/path/to/gpgkey OR in pure textformat"
+    )
     var key: Property<String> = propertyString("key")
 }
