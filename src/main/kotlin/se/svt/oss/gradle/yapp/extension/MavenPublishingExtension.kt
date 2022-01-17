@@ -8,60 +8,68 @@ import javax.inject.Inject
 open class MavenPublishingExtension @Inject constructor(
     project: Project,
     objects: ObjectFactory,
-    propPrefix: String = "yapp.mavenPublishing.",
-    envPrefix: String = "YAPP_MAVENPUBLISHING_"
+    propPrefix: String,
+    envPrefix: String
 ) :
     PropertyHandler(project, objects, propPrefix, envPrefix) {
 
     @ExtensionProperty(
         name = "mavenCentralLegacyUrl",
-        description = "When publishing to Maven Central, should the legacy urls be used?"
+        description = "When publishing to Maven Central, should the legacy url (before 2021) be used?",
+        example = "false"
     )
     var mavenCentralLegacyUrl: Property<Boolean> = propertyBool("mavenCentralLegacyUrl")
 
     @ExtensionProperty(
         name = "artifactId",
-        description = "The unique name for your component"
+        description = "The unique name for your component",
+        example = "my-super-lib"
     )
     open var artifactId: Property<String> = propertyString("artifactId")
 
     @ExtensionProperty(
         name = "groupId",
-        description = "The top level namespace level for your project starting with the reverse domain name"
+        description = "The top level namespace level for your project starting with the reverse domain name",
+        example = "com.acme"
     )
     open var groupId: Property<String> = propertyString("groupId")
 
     @ExtensionProperty(
         name = "version",
-        description = "The version string for your component"
+        description = "The version string for your component",
+        example = "0.1.0"
     )
     open var version: Property<String> = propertyString("version")
 
     @ExtensionProperty(
         name = "name",
-        description = "Human readable description of the project. A common practice is to use groupId:project.artifactId"
+        description = "Human readable description of the project. A common practice is to use groupId:project.artifactId",
+        example = "com.acme.my-super-lib"
     )
     var name: Property<String> = propertyString("name")
 
     @ExtensionProperty(
         name = "description",
-        description = "Human readable project description"
+        description = "Human readable project description",
+        example = "This a library that is just doing a lot!"
     )
     var description: Property<String> = propertyString("description")
 
     @ExtensionProperty(
         name = "url",
-        description = "Pointer to the Projects main website"
+        description = "Pointer to the Projects main website",
+        example = "https:com.acme/project"
     )
     var url: Property<String> = propertyString("url")
 
     @ExtensionProperty(
         name = "inceptionYear",
-        description = "The projects inception year"
+        description = "The projects inception year",
+        example = "2022"
     )
     var inceptionYear: Property<String> = propertyString("inceptionYear")
 
-    @ExtensionProperty(
+    @ExtensionProperty( // TO-DO should be a list licenses
         name = "licenseName",
         description = "License for the project (full name prefer SPDX full name, https://spdx.org/licenses"
     )
@@ -93,32 +101,23 @@ open class MavenPublishingExtension @Inject constructor(
     var developers = propertyList("developer", Developer.toDevelopers)
 
     @ExtensionProperty(
-        name = "organization",
-        description = "The organization (if any) owning the project"
-    )
-    var organization: Property<String> = propertyString("organization")
-
-    @ExtensionProperty(
-        name = "organizationUrl",
-        description = "The url the organization site (if any)"
-    )
-    var organizationUrl: Property<String> = propertyString("organizationUrl")
-
-    @ExtensionProperty(
         name = "scmUrl",
-        description = "Url to web front for SCM version system"
+        description = "Url to web front for SCM version system",
+        example = "https://bitbucket.org/simpligility/ossrh-pipeline-demo/src"
     )
     var scmUrl: Property<String> = propertyString("scmUrl")
 
     @ExtensionProperty(
         name = "scmConnection",
-        description = "Read connection SCM"
+        description = "Read connection SCM",
+        example = "scm:git:git://github.com/simpligility/ossrh-demo.git"
     )
     var scmConnection: Property<String> = propertyString("scmConnection")
 
     @ExtensionProperty(
         name = "scmDeveloperConnection",
-        description = "Read and write connection to SCM"
+        description = "Read and write connection to SCM",
+        example = "scm:git:ssh://github.com:simpligility/ossrh-demo.git"
     )
     var scmDeveloperConnection: Property<String> = propertyString("scmDeveloperConnection")
 
@@ -142,19 +141,26 @@ open class MavenPublishingExtension @Inject constructor(
 
     @ExtensionProperty(
         name = "directReleaseToMavenCentral",
-        description = "For publishing to Maven Central, without manual intervention of release stage"
+        description = "For publishing to Maven Central, without manual intervention of release stage",
+        example = "true"
     )
     open var directReleaseToMavenCentral: Property<Boolean> = propertyBool("directReleaseToMavenCentral")
 }
 
-data class Developer(val id: String, val name: String, val email: String) {
+data class Developer(
+    val id: String,
+    val name: String,
+    val email: String,
+    val organization: String,
+    val organizationUrl: String
+) {
 
     companion object {
         val toDevelopers: (List<List<String>>) -> List<Developer> =
             { list ->
-                list.filter { it.size == 3 }
+                list.filter { it.size == 5 }
                     .map {
-                        Developer(it[0], it[1], it[2])
+                        Developer(it[0], it[1], it[2], it[3], it[4])
                     }
             }
     }

@@ -46,8 +46,8 @@ object ConfigurationData {
        |yapp.mavenPublishing.licenseDistribution=property distribution
        |yapp.mavenPublishing.licenseComments=property comments
 
-       |yapp.mavenPublishing.developer=property developerid,property developername,property developeremail
-       |yapp.mavenPublishing.developer.2=property developerid2,property developername2,property developeremail2
+       |yapp.mavenPublishing.developer=property developerid,property developername,property developeremail,org,orgu
+       |yapp.mavenPublishing.developer.2=property developerid2,property developername2,property developeremail2,org2,orgu2
        |yapp.mavenPublishing.organization=property developerorganization
        |yapp.mavenPublishing.organizationUrl=property developerorganizationurl
 
@@ -100,11 +100,10 @@ yapp {
         licenseComments.set("plc")
 
 
-        developers.set(listOf(Developer("pdi","pdn","pde"),Developer("pdi2","pdn2","pde2")))
+        developers.set(listOf(
+            Developer("pdi", "pdn", "pde","pdo","pou"),
+            Developer("pdi2", "pdn2", "pde2","pdo2","pou2")))
 
-
-        organization.set("pdo")
-        organizationUrl.set("pou")
 
         scmUrl.set("psu")
         scmConnection.set("psc")
@@ -156,14 +155,12 @@ targets.add("maven_central")
             Pair("${envPrefix}LICENSECOMMENTS", "yapp.mavenPublishing.licenseComments"),
             Pair(
                 "${envPrefix}DEVELOPER",
-                "yapp.mavenPublishing.developerId,yapp.mavenPublishing.developerName, yapp.mavenPublishing.developerEmail"
+                "yapp.mavenPublishing.developerId,yapp.mavenPublishing.developerName, yapp.mavenPublishing.developerEmail, org, orgu"
             ),
             Pair(
                 "${envPrefix}DEVELOPER.2",
-                "yapp.mavenPublishing.developerId2,yapp.mavenPublishing.developerName2, yapp.mavenPublishing.developerEmail2"
+                "yapp.mavenPublishing.developerId2,yapp.mavenPublishing.developerName2, yapp.mavenPublishing.developerEmail2, org2, orgu2"
             ),
-            Pair("${envPrefix}ORGANIZATION", "yapp.mavenPublishing.organization"),
-            Pair("${envPrefix}ORGANIZATIONURL", "yapp.mavenPublishing.organizationUrl"),
             Pair("${envPrefix}SCMURL", "yapp.mavenPublishing.scmUrl"),
             Pair("${envPrefix}SCMCONNECTION", "yapp.mavenPublishing.scmConnection"),
             Pair("${envPrefix}SCMDEVELOPERCONNECTION", "yapp.mavenPublishing.scmDeveloperConnection"),

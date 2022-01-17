@@ -9,14 +9,12 @@ import javax.inject.Inject
 open class GradlePluginPublishingExtension @Inject constructor(project: Project, objects: ObjectFactory) :
     PropertyHandler(project, objects, "yapp.gradleplugin.", "YAPP_GRADLEPLUGIN_") {
 
-    // TO-DO this be generalized as name
     @ExtensionProperty(
         name = "id",
         description = "The id for the plugin, usually groupId:plugin-name"
     )
     var id: Property<String> = propertyString("id")
 
-    // TO-DO this can generalized
     @ExtensionProperty(
         name = "web",
         description = "Url to the projects web site",
@@ -24,7 +22,6 @@ open class GradlePluginPublishingExtension @Inject constructor(project: Project,
     )
     var webSite: Property<String> = propertyString("web")
 
-    // this can also be generalized
     @ExtensionProperty(
         name = "vcs",
         description = "Url to the projects repository",
@@ -61,12 +58,10 @@ open class GradlePluginPublishingExtension @Inject constructor(project: Project,
     var displayName: Property<String> =
         propertyString("displayname")
 
-    // TO-DO this is really the same as token so can be generliasdd
     @ExtensionProperty(name = "key")
     var key: Property<String> =
         propertyString("key")
 
-    // TO-Do this is really the same as password (for the token) so can be generalized
     @ExtensionProperty(name = "keySecret", secret = true)
     var keySecret: Property<String> =
         propertyString("keySecret")

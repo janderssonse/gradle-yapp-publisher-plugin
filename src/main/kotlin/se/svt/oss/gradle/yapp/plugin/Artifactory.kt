@@ -14,12 +14,12 @@ internal class Artifactory(
     fun configure() {
         val ext = yappExtension()
 
-        project.project.plugins.apply(MavenPublishPlugin::class.java)
-        project.project.plugins.apply(ArtifactoryPlugin::class.java).apply(project)
+        project.plugins.apply(MavenPublishPlugin::class.java)
+        project.plugins.apply(ArtifactoryPlugin::class.java).apply(project)
 
         project.afterEvaluate {
 
-            val a = project.project.convention.findPlugin(
+            val a = project.convention.findPlugin(
                 ArtifactoryPluginConvention::class.java
             )
             a!!.apply {

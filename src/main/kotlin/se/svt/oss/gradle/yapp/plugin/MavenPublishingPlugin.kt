@@ -68,8 +68,8 @@ class MavenPublishingPlugin(project: Project) : BasePlugin(project) {
                                             dev.apply {
                                                 id.set(devList.id)
                                                 name.set(devList.name)
-                                                organization.set(ext.mavenPublishing.organization)
-                                                organizationUrl.set(ext.mavenPublishing.organizationUrl)
+                                                organization.set(devList.organization)
+                                                organizationUrl.set(devList.organizationUrl)
                                                 email.set(devList.email)
                                             }
                                         }

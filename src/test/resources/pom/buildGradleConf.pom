@@ -35,8 +35,8 @@
             <id>pdi2</id>
             <name>pdn2</name>
             <email>pde2</email>
-            <organization>pdo</organization>
-            <organizationUrl>pou</organizationUrl>
+            <organization>pdo2</organization>
+            <organizationUrl>pou2</organizationUrl>
         </developer>
     </developers>
     <scm>

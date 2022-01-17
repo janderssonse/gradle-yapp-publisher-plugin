@@ -28,17 +28,16 @@
             <id>property developerid</id>
             <name>property developername</name>
             <email>property developeremail</email>
-            <organization>property developerorganization</organization>
-            <organizationUrl>property developerorganizationurl</organizationUrl>
+            <organization>org</organization>
+            <organizationUrl>orgu</organizationUrl>
         </developer>
         <developer>
             <id>property developerid2</id>
             <name>property developername2</name>
             <email>property developeremail2</email>
-            <organization>property developerorganization</organization>
-            <organizationUrl>property developerorganizationurl</organizationUrl>
+            <organization>org2</organization>
+            <organizationUrl>orgu2</organizationUrl>
         </developer>
-
     </developers>
     <scm>
         <connection>property scmconnection</connection>

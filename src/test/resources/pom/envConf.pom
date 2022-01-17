@@ -28,15 +28,15 @@
             <id>yapp.mavenPublishing.developerId</id>
             <name>yapp.mavenPublishing.developerName</name>
             <email>yapp.mavenPublishing.developerEmail</email>
-            <organization>yapp.mavenPublishing.organization</organization>
-            <organizationUrl>yapp.mavenPublishing.organizationUrl</organizationUrl>
+            <organization>org</organization>
+            <organizationUrl>orgu</organizationUrl>
         </developer>
         <developer>
             <id>yapp.mavenPublishing.developerId2</id>
             <name>yapp.mavenPublishing.developerName2</name>
             <email>yapp.mavenPublishing.developerEmail2</email>
-            <organization>yapp.mavenPublishing.organization</organization>
-            <organizationUrl>yapp.mavenPublishing.organizationUrl</organizationUrl>
+            <organization>org2</organization>
+            <organizationUrl>orgu2</organizationUrl>
         </developer>
     </developers>
     <scm>

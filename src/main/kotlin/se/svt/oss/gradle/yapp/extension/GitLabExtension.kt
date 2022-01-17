@@ -32,14 +32,14 @@ open class GitLabExtension @Inject constructor(project: Project, objects: Object
     @ExtensionProperty(
         name = "glGroupId",
         description = "The GitLab Group id, see your projects home page ",
-        example = "23423535235" // TO-Do is this always numeric?
+        example = "23423535235" // TO-Do is this always numeric? or long
     )
     var gitlabGroupId: Property<String> = propertyString("glGroupId")
 
     @ExtensionProperty(
         name = "glProjectId",
         description = "The GitLab ProjectId, see your projects homepage",
-        example = "23432432" // TO-DO is this alwyas numeric?
+        example = "23432432" // TO-DO is this alwyas numeric or long
     )
     var gitlabProjectId: Property<String> = propertyString("glProjectId")
 }

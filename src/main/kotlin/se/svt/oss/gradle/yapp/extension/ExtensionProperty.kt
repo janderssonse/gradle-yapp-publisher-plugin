@@ -37,7 +37,7 @@ annotation class ExtensionPropertyExtractor(val extractor: KClass<out ExtensionP
 class ExtensionPropertyDeveloperExtractor : ExtensionPropertyValueExtractor {
     override fun extract(value: Any): String {
         if (value is Developer) {
-            return "${value.id}, ${value.name} <${value.email}>"
+            return "${value.id}, ${value.name} <${value.email}>, <${value.organization}> <${value.organizationUrl}>"
         }
         throw GradleException("ExtensionPropertyDeveloperExtractor only works for Developer class")
     }
