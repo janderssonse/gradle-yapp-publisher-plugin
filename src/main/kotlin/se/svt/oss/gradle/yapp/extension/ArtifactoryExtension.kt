@@ -46,7 +46,15 @@ open class ArtifactoryExtension @Inject constructor(project: Project, objects: O
         name = "properties",
         description = "Optional map of properties to attach to all published artifacts"
     )
-    var properties: MapProperty<String, String> = propertyMap("properties", { list -> list.associateWith { it } })
+    var properties: MapProperty<String, String> = propertyMap(
+        "properties",
+        { list ->
+            list.filter { it.isNotBlank() }
+                .map { it.split(":") }
+                .map { it.first() to it.last() }
+                .toMap()
+        }
+    )
 
  /*   @ExtensionProperty(name = "includeEnvVars")
     var includeEnvVars: Property<Boolean> = propertyBool("includeEnvVars")

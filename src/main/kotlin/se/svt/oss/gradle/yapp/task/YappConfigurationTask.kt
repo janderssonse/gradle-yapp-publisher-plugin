@@ -2,6 +2,7 @@ package se.svt.oss.gradle.yapp.task
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 import se.svt.oss.gradle.yapp.config.projectType
 import se.svt.oss.gradle.yapp.extension.SigningExtension
 import se.svt.oss.gradle.yapp.extension.YappPublisherExtension
@@ -10,6 +11,7 @@ import se.svt.oss.gradle.yapp.publishingtarget.fetchPluginExtensionsPropertiesFo
 import se.svt.oss.gradle.yapp.publishingtarget.publishingTargets
 import se.svt.oss.gradle.yapp.yappExtension
 
+@DisableCachingByDefault(because = "Not worth caching")
 abstract class YappConfigurationTask : DefaultTask() {
     init {
         group = "yapp publisher"

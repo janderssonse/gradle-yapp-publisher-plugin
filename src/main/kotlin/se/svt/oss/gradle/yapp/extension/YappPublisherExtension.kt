@@ -8,6 +8,8 @@ import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import se.svt.oss.gradle.yapp.extension.DefaultProperties.Companion.DEFAULT_WITH_DOC_ARTIFACT
+import se.svt.oss.gradle.yapp.extension.DefaultProperties.Companion.DEFAULT_WITH_SOURCE_ARTIFACT
 import javax.inject.Inject
 
 open class YappPublisherExtension @Inject constructor(project: Project, objects: ObjectFactory) :
@@ -31,25 +33,27 @@ open class YappPublisherExtension @Inject constructor(project: Project, objects:
 
     @ExtensionProperty(
         name = "withSourceArtifact",
-        description = "Generate a source code artifact"
+        description = "Generate a source code artifact",
+        defaultValue = DEFAULT_WITH_SOURCE_ARTIFACT.toString()
     )
-    var withSourceArtifact: Property<Boolean> = propertyBool("withSourceArtifact", true)
+    var withSourceArtifact: Property<Boolean> = propertyBool("withSourceArtifact", DEFAULT_WITH_SOURCE_ARTIFACT)
 
     @ExtensionProperty(
         name = "withDocArtifact",
-        description = "Generate a doc artifact"
+        description = "Generate a doc artifact",
+        defaultValue = DEFAULT_WITH_DOC_ARTIFACT.toString()
     )
-    var withDocArtifact: Property<Boolean> = propertyBool("withDocArtifact", true)
+    var withDocArtifact: Property<Boolean> = propertyBool("withDocArtifact", DEFAULT_WITH_DOC_ARTIFACT)
 
     @ExtensionProperty(
         name = "emptySourceArtifact",
-        description = "Generate an empty source artifact (overrides withSourceArtifact"
+        description = "Generate an empty source artifact (overrides withSourceArtifact)"
     )
     var emptySourceArtifact: Property<Boolean> = propertyBool("emptySourceArtifact")
 
     @ExtensionProperty(
         name = "emptyDocArtifact",
-        description = "Generates an empty doc artifact (overrides withDocArtifact"
+        description = "Generates an empty doc artifact (overrides withDocArtifact)"
     )
     var emptyDocArtifact: Property<Boolean> = propertyBool("emptyDocArtifact")
 

@@ -3,6 +3,7 @@ package se.svt.oss.gradle.yapp.extension
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
+import se.svt.oss.gradle.yapp.extension.DefaultProperties.Companion.DEFAULT_ENDPOINT_LEVEL
 import javax.inject.Inject
 
 open class GitLabExtension @Inject constructor(project: Project, objects: ObjectFactory) :
@@ -24,10 +25,11 @@ open class GitLabExtension @Inject constructor(project: Project, objects: Object
 
     @ExtensionProperty(
         name = "endpointLevel",
+        defaultValue = DEFAULT_ENDPOINT_LEVEL,
         description = "Publish to project or group (valid: project or group",
         example = "project"
     )
-    var endpointLevel: Property<String> = propertyString("endpointLevel", "project")
+    var endpointLevel: Property<String> = propertyString("endpointLevel", DEFAULT_ENDPOINT_LEVEL)
 
     @ExtensionProperty(
         name = "glGroupId",

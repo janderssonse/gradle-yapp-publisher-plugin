@@ -5,6 +5,9 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
+import se.svt.oss.gradle.yapp.extension.DefaultProperties.Companion.DEFAULT_PROPERTY_BOOLEAN
+import se.svt.oss.gradle.yapp.extension.DefaultProperties.Companion.DEFAULT_PROPERTY_INT
+import se.svt.oss.gradle.yapp.extension.DefaultProperties.Companion.DEFAULT_PROPERTY_STRING
 import javax.inject.Inject
 
 abstract class PropertyHandler @Inject constructor(
@@ -14,13 +17,13 @@ abstract class PropertyHandler @Inject constructor(
     val envPrefix: String
 ) {
 
-    internal fun propertyString(property: String, defaultValue: String = "") =
+    internal fun propertyString(property: String, defaultValue: String = DEFAULT_PROPERTY_STRING) =
         simpleProperty(property, defaultValue) { it.first() }
 
-    internal fun propertyBool(property: String, defaultValue: Boolean = false) =
+    internal fun propertyBool(property: String, defaultValue: Boolean = DEFAULT_PROPERTY_BOOLEAN) =
         simpleProperty(property, defaultValue) { it.first().toBooleanStrict() }
 
-    internal fun propertyInt(property: String, defaultValue: Int = 0): Property<Int> =
+    internal fun propertyInt(property: String, defaultValue: Int = DEFAULT_PROPERTY_INT): Property<Int> =
         simpleProperty<Int>(property, defaultValue) { it.first().toInt() }
 
     internal inline fun <reified K, reified V> propertyMap(
@@ -78,12 +81,10 @@ abstract class PropertyHandler @Inject constructor(
 
         val filteredPropertiesMap = findProperties(property, propPrefix, envPrefix, project)
         val propAsList = convertToList(filteredPropertiesMap)
-
         val gradlePropOrEnvProperties = if (propAsList.isEmpty()) {
             defaultMap
         } else
             toTypeFunction(propAsList.first())
-
         return objects.mapProperty(K::class.java, V::class.java)
             .apply { convention(gradlePropOrEnvProperties) }
     }

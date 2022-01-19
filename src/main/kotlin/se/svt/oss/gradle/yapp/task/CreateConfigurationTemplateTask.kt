@@ -2,7 +2,13 @@ package se.svt.oss.gradle.yapp.task
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.internal.tasks.userinput.UserInputHandler
+import org.gradle.api.logging.LogLevel
 import org.gradle.api.tasks.TaskAction
+import org.gradle.internal.logging.events.OutputEventListener
+import org.gradle.internal.logging.events.StyledTextOutputEvent
+import org.gradle.internal.logging.text.StyledTextOutput.Style
+import org.gradle.internal.time.Clock
+import org.gradle.work.DisableCachingByDefault
 import se.svt.oss.gradle.yapp.extension.PluginExtensionProperties
 import se.svt.oss.gradle.yapp.extension.SigningExtension
 import se.svt.oss.gradle.yapp.extension.YappPublisherExtension
@@ -10,34 +16,53 @@ import se.svt.oss.gradle.yapp.extension.fetchPluginExtensionProperties
 import se.svt.oss.gradle.yapp.publishingtarget.PublishingTargetType
 import se.svt.oss.gradle.yapp.publishingtarget.fetchPluginExtensionsPropertiesForTarget
 import se.svt.oss.gradle.yapp.yappExtension
-import java.io.File
+import javax.inject.Inject
 
-abstract class CreateConfigurationTemplateTask : DefaultTask() {
+@DisableCachingByDefault(because = "Not worth caching")
+abstract class CreateConfigurationTemplateTask
+@Inject constructor(
+    private val clock: Clock,
+    private val outputEventListener: OutputEventListener,
+) : DefaultTask() {
     init {
         group = "yapp publisher"
         description = "Create template for a gradle.properties based on user input"
+    }
 
-        val destination: String? = project.properties["destination"] as String?
-        val outputFile: File? = if (destination != null) File(destination) else null
-
-        project.logger.lifecycle(
-            """
-            |
-            |This task will create Yapp Publisher configuration.
-            |Fill in needed configuration or just create a template for you gradle.properties file.
-            |
-        """.trimMargin()
+    private fun sendOutput(spans: List<StyledTextOutputEvent.Span>) {
+        outputEventListener.onOutput(
+            StyledTextOutputEvent(
+                clock.currentTime,
+                "QUIET",
+                LogLevel.QUIET,
+                null,
+                spans
+            )
         )
-
-        if (outputFile != null) {
-            project.logger.lifecycle("Will write configuration to ${outputFile.absoluteFile}.")
-        } else {
-            project.logger.lifecycle("Will write configuration to console.")
-        }
     }
 
     @TaskAction
     fun createTemplate() {
+        sendOutput(
+            mutableListOf(
+                StyledTextOutputEvent.Span(
+                    Style.Header,
+                    "This task will create Yapp Publisher configuration."
+                ),
+                StyledTextOutputEvent.Span(
+                    Style.Description,
+                    System.lineSeparator() +
+                        "Add configuration or just create an empty template for you gradle.properties file."
+                ),
+                StyledTextOutputEvent.Span(
+                    Style.Identifier,
+                    System.lineSeparator().repeat(2) +
+                        "At the end all configuration will be written to console."
+                ),
+                StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()),
+            )
+        )
+
         val userInput = services.get(org.gradle.api.internal.tasks.userinput.UserInputHandler::class.java)
         val groups: MutableList<Group> = mutableListOf()
 
@@ -50,16 +75,15 @@ abstract class CreateConfigurationTemplateTask : DefaultTask() {
         groups.add(
             configureGroup(
                 userInput = userInput,
-                name = yappPluginExtensionProperties.name,
                 displayName = yappPluginExtensionProperties.displayName,
-                target = null,
                 propPrefix = yappPluginExtensionProperties.propPrefix,
+                target = null,
                 properties = yappPluginExtensionProperties.properties().filter { p -> p.name != "targets" }
             )
         )
 
         // Signing config
-        if (userInput.askYesNoQuestion("Add signing configuration?", false)) {
+        if (userInput.askYesNoQuestion("Add signing configuration to project?", false)) {
             val signingPluginExtensionProperties = fetchPluginExtensionProperties(
                 "Signing",
                 SigningExtension::class,
@@ -68,11 +92,10 @@ abstract class CreateConfigurationTemplateTask : DefaultTask() {
             groups.add(
                 configureGroup(
                     userInput = userInput,
-                    name = signingPluginExtensionProperties.name,
                     displayName = signingPluginExtensionProperties.displayName,
-                    target = null,
                     propPrefix = signingPluginExtensionProperties.propPrefix,
-                    properties = signingPluginExtensionProperties.properties()
+                    target = null,
+                    properties = signingPluginExtensionProperties.properties(),
                 )
             )
         }
@@ -88,10 +111,10 @@ abstract class CreateConfigurationTemplateTask : DefaultTask() {
         while (possiblePublishTargets.size > 0) {
             val choice: String = userInput.selectOption(
                 "Add target to configuration",
-                listOf("No more targets") + possiblePublishTargets.map { t -> t.name },
-                null
+                listOf("No more targets (exit configuration)") + possiblePublishTargets.map { t -> t.name },
+                "No more targets (exit configuration)"
             )
-            if (choice == "No more targets") {
+            if (choice == "No more targets (exit configuration)") {
                 break
             }
             val targetType = PublishingTargetType.valueOf(choice)
@@ -100,10 +123,9 @@ abstract class CreateConfigurationTemplateTask : DefaultTask() {
             groups.add(
                 configureGroup(
                     userInput = userInput,
-                    name = pluginExtensionsProperties.name,
                     displayName = pluginExtensionsProperties.displayName,
-                    target = targetType.name.lowercase(),
                     propPrefix = pluginExtensionsProperties.propPrefix,
+                    target = targetType.name.lowercase(),
                     properties = pluginExtensionsProperties.properties()
                 )
             )
@@ -121,43 +143,75 @@ abstract class CreateConfigurationTemplateTask : DefaultTask() {
     private fun configureGroup(
         userInput: UserInputHandler,
         displayName: String,
-        name: String,
         propPrefix: String,
         target: String?,
         properties: List<PluginExtensionProperties.ExtensionProperty>
     ): Group {
-        val createEmpty = userInput.askYesNoQuestion(
-            """
-
-            Configure $displayName later by create an empty template with all properties.
-
-            ${name.lowercase()}> Create empty template?
-            """.trimIndent(),
-            false
+        sendOutput(
+            mutableListOf(
+                StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()),
+                StyledTextOutputEvent.Span(Style.Header, "Configure $displayName"),
+                StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()),
+                StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()),
+            )
         )
-        val onlyRequired = if (!createEmpty) {
-            userInput.askYesNoQuestion("${name.lowercase()}> Create template with required fields only?", true)
-        } else {
-            false
-        }
+
+        val createEmpty = userInput.askYesNoQuestion("Create empty template?", false)
+
         val group = Group(displayName, target)
         properties
-            .filter { props -> if (onlyRequired) props.mandatory else true }
             .forEach { props ->
                 run {
-                    val answer =
+                    val answer: Any =
                         if (!createEmpty) {
-                            var question = "${name.lowercase()}> ${props.name}"
-                            if (props.valueType == PluginExtensionProperties.ExtensionPropertyType.LIST) {
-                                question = """Use ',' to create a list. E.g. value1,value2,value3
-                                    |$question
-                                """.trimMargin()
+                            val description = props.description
+                            val example = props.example
+
+                            val spans = mutableListOf(
+                                StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()),
+                                StyledTextOutputEvent.Span(Style.Header, props.name)
+                            )
+                            if (!description.isNullOrBlank()) {
+                                spans.add(StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()))
+                                spans.add(StyledTextOutputEvent.Span(Style.Description, description))
                             }
-                            userInput.askQuestion(question, props.defaultValue)
+                            if (!example.isNullOrBlank()) {
+                                spans.add(StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()))
+                                spans.add(StyledTextOutputEvent.Span(Style.Description, "Example: $example"))
+                            }
+
+                            if (props.collectionType == PluginExtensionProperties.ExtensionPropertyType.LIST) {
+                                spans.add(StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()))
+                                spans.add(
+                                    StyledTextOutputEvent.Span(
+                                        Style.Description,
+                                        "Use ',' to create a list, i.e. value1,value2,value3"
+                                    )
+                                )
+                            } else if (props.collectionType == PluginExtensionProperties.ExtensionPropertyType.MAP) {
+                                spans.add(StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()))
+                                spans.add(
+                                    StyledTextOutputEvent.Span(
+                                        Style.Description,
+                                        "Use 'k:v' and ',' to create a map, i.e. key1:value1,key2:value2,key3:value3"
+                                    )
+                                )
+                            }
+                            if (props.valueType == PluginExtensionProperties.ValueType.NUMERIC) {
+                                spans.add(StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()))
+                                spans.add(StyledTextOutputEvent.Span(Style.Description, "Add a numeric value."))
+                            }
+                            spans.add(StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()))
+                            sendOutput(spans)
+                            if (props.valueType == PluginExtensionProperties.ValueType.BOOLEAN) {
+                                userInput.askYesNoQuestion(props.name, props.defaultValue.toBoolean())
+                            } else {
+                                userInput.askQuestion(props.name, props.defaultValue ?: "")
+                            }
                         } else {
                             ""
                         }
-                    group.props["${propPrefix}${props.name}"] = answer
+                    group.props["${propPrefix}${props.name}"] = answer.toString()
                 }
             }
         return group

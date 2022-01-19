@@ -141,8 +141,7 @@ class MavenPublishingPlugin(project: Project) : BasePlugin(project) {
                         nexus.username.set(repositoryConf.credential.name)
                         nexus.password.set(repositoryConf.credential.value)
                     }
-
-                    extension.repositories.forEach { println("${it.name}asfasdf") }
+                    extension.repositories.forEach { println("$it.name") }
                 }
             }
         }

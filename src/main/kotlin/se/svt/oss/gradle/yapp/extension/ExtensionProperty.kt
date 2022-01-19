@@ -13,6 +13,8 @@ import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 
+const val NULL_VALUE = "[null]"
+
 /**
  * Annotation to add metadata to a Yapp Plugin extension.
  * @property name the name of the property
@@ -23,9 +25,9 @@ import kotlin.reflect.full.memberProperties
 @Retention(AnnotationRetention.RUNTIME)
 annotation class ExtensionProperty(
     val name: String,
-    val description: String = "[null]",
-    val example: String = "[null]",
-    val defaultValue: String = "[null]",
+    val description: String = NULL_VALUE,
+    val example: String = NULL_VALUE,
+    val defaultValue: String = NULL_VALUE,
     val secret: Boolean = false,
     val mandatory: Boolean = false,
 )
@@ -70,11 +72,14 @@ class PluginExtensionProperties(
     fun addProperty(
         name: String,
         value: String,
-        valueType: ExtensionPropertyType,
+        valueType: ValueType,
+        collectionType: ExtensionPropertyType,
         defaultValue: String? = null,
         formatter: PluginExtensionPropertyFormatter? = null,
         inProject: Boolean = false,
         inEnv: Boolean = false,
+        description: String? = null,
+        example: String? = null,
         mandatory: Boolean = false,
     ) {
         properties.add(
@@ -82,10 +87,13 @@ class PluginExtensionProperties(
                 name = name,
                 value = value,
                 valueType = valueType,
+                collectionType = collectionType,
                 defaultValue = defaultValue,
                 formatter = formatter,
                 inProject = inProject,
                 inEnv = inEnv,
+                description = description,
+                example = example,
                 mandatory = mandatory
             )
         )
@@ -105,6 +113,12 @@ class PluginExtensionProperties(
         }
     }
 
+    enum class ValueType {
+        STRING,
+        NUMERIC,
+        BOOLEAN,
+    }
+
     enum class ExtensionPropertyType {
         SINGLE,
         LIST,
@@ -114,16 +128,23 @@ class PluginExtensionProperties(
     class ExtensionProperty(
         val name: String,
         value: String,
-        val valueType: ExtensionPropertyType,
+        val valueType: ValueType,
+        val collectionType: ExtensionPropertyType,
         val defaultValue: String? = null,
         val formatter: PluginExtensionPropertyFormatter? = null,
         val inProject: Boolean = false,
         val inEnv: Boolean = false,
+        val description: String? = null,
+        val example: String? = null,
         val mandatory: Boolean = false,
     ) {
-        private val value: String = value
+        val value: String = value
             // Overrides value to handle formatters (secrets)
             get() {
+                // Always return empty string as no value
+                if (!inProject && !inEnv && defaultValue == null) {
+                    return ""
+                }
                 var tmp: String = field
                 if (formatter != null) {
                     tmp = formatter.format(tmp)
@@ -148,12 +169,12 @@ class PluginExtensionProperties(
 }
 
 fun <T : Any> fetchPluginExtensionProperties(
-    display_name: String,
+    displayName: String,
     clazz: KClass<T>,
     extension: PropertyHandler
 ): PluginExtensionProperties {
     val props = fetchExtensionPropertiesAnnotations(clazz)
-    return buildExtensionProperties(display_name, props, extension)
+    return buildExtensionProperties(displayName, props, extension)
 }
 
 fun fetchPluginExtensionProperties(target: BasePublishTarget): PluginExtensionProperties {
@@ -241,19 +262,24 @@ private fun buildExtensionProperties(
             if (propertyAnnotation != null) {
                 val formatter = if (propertyAnnotation.secret) PluginExtensionPropertySecretFormatter() else null
                 val valueWithType = getValueAsString(annotationWrapper, extension)
+                val inProject = PropertyHandler.findPropertiesInProject(
+                    extension.project,
+                    extension.propPrefix,
+                    propertyAnnotation.name
+                ).isNotEmpty()
+                val inEnv = PropertyHandler.findPropertiesInEnv(extension.envPrefix, propertyAnnotation.name)
+                    .isNotEmpty()
                 extensionProperties.addProperty(
                     name = propertyAnnotation.name,
                     value = valueWithType.first,
                     valueType = valueWithType.second,
-                    defaultValue = propertyAnnotation.defaultValue,
+                    collectionType = valueWithType.third,
+                    defaultValue = if (propertyAnnotation.defaultValue == NULL_VALUE) null else propertyAnnotation.defaultValue,
                     formatter = formatter,
-                    inProject = PropertyHandler.findPropertiesInProject(
-                        extension.project,
-                        extension.propPrefix,
-                        propertyAnnotation.name
-                    ).isNotEmpty(),
-                    inEnv = PropertyHandler.findPropertiesInEnv(extension.envPrefix, propertyAnnotation.name)
-                        .isNotEmpty(),
+                    inProject = inProject,
+                    inEnv = inEnv,
+                    description = if (propertyAnnotation.description == NULL_VALUE) null else propertyAnnotation.description,
+                    example = if (propertyAnnotation.example == NULL_VALUE) null else propertyAnnotation.example,
                     mandatory = propertyAnnotation.mandatory,
                 )
             }
@@ -265,27 +291,31 @@ private fun buildExtensionProperties(
 private fun getValueAsString(
     annotationWrapper: AnnotationWrapper<*>,
     extension: PropertyHandler
-): Pair<String, PluginExtensionProperties.ExtensionPropertyType> {
+): Triple<String, PluginExtensionProperties.ValueType, PluginExtensionProperties.ExtensionPropertyType> {
     var value = annotationWrapper.clazz.java.kotlin.memberProperties
         .first { it.name == annotationWrapper.propertyName }
         .getter.call(extension)
-
-    val valueType: PluginExtensionProperties.ExtensionPropertyType?
+    var valueType: PluginExtensionProperties.ValueType = PluginExtensionProperties.ValueType.STRING
+    val collectionType: PluginExtensionProperties.ExtensionPropertyType?
     val extractor: ExtensionPropertyValueExtractor? = annotationWrapper.extractor?.extractor?.createInstance()
     if (value is Property<*>) {
         if (extractor != null) {
             value = extractor.extract(value.get())
         } else {
             value = value.orNull
-            if (value is Boolean) {
-                value = value.toString()
-            } else {
-                if (value is Int) {
+            if (value != null) {
+                if (value is Boolean) {
+                    valueType = PluginExtensionProperties.ValueType.BOOLEAN
                     value = value.toString()
+                } else {
+                    if (value is Int) {
+                        valueType = PluginExtensionProperties.ValueType.NUMERIC
+                        value = value.toString()
+                    }
                 }
             }
         }
-        valueType = PluginExtensionProperties.ExtensionPropertyType.SINGLE
+        collectionType = PluginExtensionProperties.ExtensionPropertyType.SINGLE
     } else if (value is ListProperty<*>) {
         value = value.getOrElse(emptyList())
         value = if (extractor != null) {
@@ -294,18 +324,22 @@ private fun getValueAsString(
             value.map { v -> v.toString() }
         }
         value = value.joinToString(",")
-        valueType = PluginExtensionProperties.ExtensionPropertyType.LIST
+        collectionType = PluginExtensionProperties.ExtensionPropertyType.LIST
     } else if (value is MapProperty<*, *>) {
         value = value.orNull
         if (value != null) {
-            value.mapKeys { k -> k.toString() }
-            value = if (extractor != null) {
-                value.mapValues { v -> extractor.extract(v) }
+            if (value.isNotEmpty()) {
+                value.mapKeys { (k, _) -> k.toString() }
+                value = if (extractor != null) {
+                    value.mapValues { (_, v) -> extractor.extract(v) }
+                } else {
+                    value.mapValues { (_, v) -> v.toString() }
+                }
+                value = value.map { (k, v) -> "$k=$v" }.joinToString(",")
             } else {
-                value.mapValues { v -> v.toString() }
+                value = ""
             }
-            value = value.map { (k, v) -> "$k=$v" }.joinToString(",")
-            valueType = PluginExtensionProperties.ExtensionPropertyType.MAP
+            collectionType = PluginExtensionProperties.ExtensionPropertyType.MAP
         } else {
             throw GradleException("MapProperty is null")
         }
@@ -313,7 +347,7 @@ private fun getValueAsString(
         throw GradleException("Unknown value object ${if (value != null) value::class.java.simpleName else null}")
     }
 
-    return Pair(value as String, valueType)
+    return Triple(value as String, valueType, collectionType)
 }
 
 private class PluginExtensionPropertySecretFormatter() : PluginExtensionPropertyFormatter() {

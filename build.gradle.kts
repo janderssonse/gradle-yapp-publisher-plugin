@@ -37,7 +37,7 @@ dependencies {
     testImplementation("org.xmlunit:xmlunit-core:2.8.4")
     testImplementation("org.xmlunit:xmlunit-matchers:2.8.4")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
     testImplementation("uk.org.webcompere:system-stubs-jupiter:1.2.0")
 }
 
@@ -46,6 +46,7 @@ tasks {
         useJUnitPlatform()
     }
 }
+
 yapp {
 
 }
