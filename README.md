@@ -8,12 +8,12 @@
 ## What is it?
 
 A Gradle plugin for publishing and optionally signing JVM-based projects (currently Java/Kotlin) and libraries packages to Maven Central,
-Gradle Portal, GitHub, GitLab.
+Gradle Portal, GitHub, GitLab, Artifactory (basic support).
 
 
 ## Why does it exist?
 
-To make life (arguably) easier when configuring the plugins needed for these tasks.
+To make life (well, arguably) easier when configuring the plugins needed for these tasks.
 
 To offer a simple, flexible union interface for these tasks, regardless of publishing target.
 
@@ -22,14 +22,15 @@ If you want a coherent configuration for multiple publishing targets this gradle
 
 ## Features
 
-* Maven Central, Gradle Portal, GitLab, GitHub Publishing
+* Maven Central, Gradle Portal, GitLab, GitHub, Artifactory Publishing
 * Signing
 * Java, Kotlin, Android Library (aar) support (release variant)
 * Build file, Properties or System Environment Configuration - or all of them
 * Publish to several targets at once
 * Configure autorelease to Maven Central
 * Dokka Publish support
-* Choose to publish with or without source code and docs
+* Choose to publish with or without source, docs artifacts or with empty source/doc artifacts
+* Mice configuration overview and guide for creating templates
 * Semi smart configuration :)
 * ... and more
 
@@ -92,6 +93,7 @@ A publishing target defines where to publish the project.
 
 Allowed target values are:
 - 
+- artifactory
 - maven_central
 - maven_central_snapshot
 - gitlab
@@ -346,16 +348,16 @@ See the gpg folder under the Project test resources for examples.
 
 ## Future
 
-In an early stage, the following features are planned, according to priority:
+In an early stage, the following features would be a nice roadmap:
 
 * More tests
 * More settings can be simplified and auto set
-* More pre-configured targets. JFrog, JitPack? and Custom Maven Publishing
+* Better handling of multi project setup
+* More pre-configured targets. Improve the existing ones - JitPack? and Custom Maven Publishing
 * Better semi smart Plugin identification
-* Create sample configuration
-* Empty jar publishing (sources, jar, needed for maven central)
-* Nested object model, for the few 10% that might need them
+* Create sample configurations
 * Support other languages than Java/Kotlin (Groovy,Scala)
+* Auto add base plugins based on user publishing target choice
 
 # F.A.Q
 

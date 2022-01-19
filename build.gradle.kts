@@ -29,10 +29,11 @@ repositories {
 dependencies {
     api("com.gradle.publish:plugin-publish-plugin:0.18.0")
     compileOnly("com.android.tools.build:gradle:7.0.4")
-    implementation("org.jfrog.buildinfo:build-info-extractor-gradle:4.26.1")
+    api("org.jfrog.artifactory.client:artifactory-java-client-services:2.9.2")
+//    implementation("org.jfrog.buildinfo:build-info-extractor-gradle:4.26.1")
 //    implementation("com.jfrog.artifactory:4.26.1")
     implementation("io.github.gradle-nexus:publish-plugin:1.1.0")
-    implementation("com.google.guava:guava:31.0.1-android")//needed by artifactorys tasks propertity
+//    implementation("com.google.guava:guava:31.0.1-android")//needed by artifactorys tasks propertity
     testImplementation("org.xmlunit:xmlunit-core:2.8.4")
     testImplementation("org.xmlunit:xmlunit-matchers:2.8.4")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")

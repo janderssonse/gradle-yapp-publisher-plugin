@@ -3,6 +3,8 @@ package se.svt.oss.gradle.yapp.task
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import se.svt.oss.gradle.yapp.config.projectType
+import se.svt.oss.gradle.yapp.publishingtarget.ArtifactoryRepository
+import se.svt.oss.gradle.yapp.publishingtarget.PublishingTargetType.ARTIFACTORY
 import se.svt.oss.gradle.yapp.publishingtarget.PublishingTargetType.GITHUB
 import se.svt.oss.gradle.yapp.publishingtarget.PublishingTargetType.GITLAB
 import se.svt.oss.gradle.yapp.publishingtarget.PublishingTargetType.GRADLE_PORTAL
@@ -17,10 +19,19 @@ abstract class PublishArtifactTask( // @Inject constructor(
     init {
         group = "yapp publisher"
         description =
-            "Publish ${project.name} as a ${project.projectType().javaClass.simpleName} to ${project.publishingTargets().forEach { it.name() }}"
+            "Publish ${project.name} as a ${project.projectType().javaClass.simpleName} to ${
+            project.publishingTargets().forEach { it.name() }
+            }"
 
         project.publishingTargets().forEach {
             when (it.publishingTargetType) {
+
+                ARTIFACTORY -> {
+                    dependsOn(project.tasks.getByName("publishToMavenLocal"))
+                    val artifactory = ArtifactoryRepository.artifactory(project)
+                    val artifacts = artifactory.collectArtifacts(project.repositories.mavenLocal().url.path)
+                    artifactory.upload(artifacts)
+                }
                 GRADLE_PORTAL -> {
                     dependsOn(project.tasks.getByName("publishPlugins"))
                 }
@@ -43,7 +54,11 @@ abstract class PublishArtifactTask( // @Inject constructor(
         }
         doLast {
 
-            println("Published ${project.name} as a ${project.projectType().javaClass.simpleName} to ${project.publishingTargets().forEach { it.name() }}")
+            println(
+                "Published ${project.name} as a ${project.projectType().javaClass.simpleName} to ${
+                project.publishingTargets().forEach { it.name() }
+                }"
+            )
         }
     }
 

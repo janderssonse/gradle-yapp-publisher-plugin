@@ -10,7 +10,7 @@ open class GitLabExtension @Inject constructor(project: Project, objects: Object
 
     @ExtensionProperty(
         name = "host",
-        description = "The GitLab Host domain name",
+        description = "The Target GitLab Host domain url",
         example = "https://gitlab.com"
     )
     var host: Property<String> = propertyString("host")

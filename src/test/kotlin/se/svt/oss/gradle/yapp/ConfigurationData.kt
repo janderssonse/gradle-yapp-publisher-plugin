@@ -205,8 +205,7 @@ dependencies {
     api("com.gradle.publish:plugin-publish-plugin:0.16.0")
 
 
-    implementation("org.jfrog.buildinfo:build-info-extractor-gradle:4.26.1")
-    implementation("com.google.guava:guava:31.0.1-android")//needed by artifactorys tasks prop
+    api("org.jfrog.artifactory.client:artifactory-java-client-services:2.9.2")
     compileOnly("com.android.tools.build:gradle:7.0.4")
 
     implementation("io.github.gradle-nexus:publish-plugin:1.1.0")
