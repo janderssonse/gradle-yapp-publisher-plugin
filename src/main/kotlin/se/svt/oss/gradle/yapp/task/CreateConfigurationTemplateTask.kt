@@ -44,22 +44,23 @@ abstract class CreateConfigurationTemplateTask
     @TaskAction
     fun createTemplate() {
         sendOutput(
-            mutableListOf(
+            listOf(
                 StyledTextOutputEvent.Span(
                     Style.Header,
                     "This task will create Yapp Publisher configuration."
                 ),
+                StyledTextOutputEvent.EOL,
                 StyledTextOutputEvent.Span(
                     Style.Description,
-                    System.lineSeparator() +
-                        "Add configuration or just create an empty template for you gradle.properties file."
+                    "Add configuration or just create an empty template for you gradle.properties file."
                 ),
+                StyledTextOutputEvent.EOL,
+                StyledTextOutputEvent.EOL,
                 StyledTextOutputEvent.Span(
                     Style.Identifier,
-                    System.lineSeparator().repeat(2) +
-                        "At the end all configuration will be written to console."
+                    "At the end all configuration will be written to console."
                 ),
-                StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()),
+                StyledTextOutputEvent.EOL
             )
         )
 
@@ -83,6 +84,12 @@ abstract class CreateConfigurationTemplateTask
         )
 
         // Signing config
+        sendOutput(
+            listOf(
+                StyledTextOutputEvent.Span(Style.Header, "Signing configuration"),
+                StyledTextOutputEvent.EOL
+            )
+        )
         if (userInput.askYesNoQuestion("Add signing configuration to project?", false)) {
             val signingPluginExtensionProperties = fetchPluginExtensionProperties(
                 "Signing",
@@ -148,11 +155,11 @@ abstract class CreateConfigurationTemplateTask
         properties: List<PluginExtensionProperties.ExtensionProperty>
     ): Group {
         sendOutput(
-            mutableListOf(
-                StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()),
+            listOf(
+                StyledTextOutputEvent.EOL,
                 StyledTextOutputEvent.Span(Style.Header, "Configure $displayName"),
-                StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()),
-                StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()),
+                StyledTextOutputEvent.EOL,
+                StyledTextOutputEvent.EOL,
             )
         )
 
@@ -168,20 +175,20 @@ abstract class CreateConfigurationTemplateTask
                             val example = props.example
 
                             val spans = mutableListOf(
-                                StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()),
+                                StyledTextOutputEvent.EOL,
                                 StyledTextOutputEvent.Span(Style.Header, props.name)
                             )
                             if (!description.isNullOrBlank()) {
-                                spans.add(StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()))
+                                spans.add(StyledTextOutputEvent.EOL)
                                 spans.add(StyledTextOutputEvent.Span(Style.Description, description))
                             }
                             if (!example.isNullOrBlank()) {
-                                spans.add(StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()))
+                                spans.add(StyledTextOutputEvent.EOL)
                                 spans.add(StyledTextOutputEvent.Span(Style.Description, "Example: $example"))
                             }
 
                             if (props.collectionType == PluginExtensionProperties.ExtensionPropertyType.LIST) {
-                                spans.add(StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()))
+                                spans.add(StyledTextOutputEvent.EOL)
                                 spans.add(
                                     StyledTextOutputEvent.Span(
                                         Style.Description,
@@ -189,7 +196,7 @@ abstract class CreateConfigurationTemplateTask
                                     )
                                 )
                             } else if (props.collectionType == PluginExtensionProperties.ExtensionPropertyType.MAP) {
-                                spans.add(StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()))
+                                spans.add(StyledTextOutputEvent.EOL)
                                 spans.add(
                                     StyledTextOutputEvent.Span(
                                         Style.Description,
@@ -198,10 +205,10 @@ abstract class CreateConfigurationTemplateTask
                                 )
                             }
                             if (props.valueType == PluginExtensionProperties.ValueType.NUMERIC) {
-                                spans.add(StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()))
+                                spans.add(StyledTextOutputEvent.EOL)
                                 spans.add(StyledTextOutputEvent.Span(Style.Description, "Add a numeric value."))
                             }
-                            spans.add(StyledTextOutputEvent.Span(Style.Normal, System.lineSeparator()))
+                            spans.add(StyledTextOutputEvent.EOL)
                             sendOutput(spans)
                             if (props.valueType == PluginExtensionProperties.ValueType.BOOLEAN) {
                                 userInput.askYesNoQuestion(props.name, props.defaultValue.toBoolean())
