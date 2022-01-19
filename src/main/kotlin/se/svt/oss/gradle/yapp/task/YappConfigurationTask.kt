@@ -23,26 +23,30 @@ abstract class YappConfigurationTask : DefaultTask() {
 
         println("Yapp Publisher Plugin")
         println("Name: ${project.name}, Type: ${project.projectType().javaClass.simpleName}")
-
-        println("\nConfigurations\n")
+        println("")
+        println("Configurations")
+        println("")
 
         fetchPluginExtensionProperties(
             "Yapp Publisher Plugin",
             YappPublisherExtension::class,
             project.yappExtension()
         ).prettyPrint()
-        println("\n")
+        println("")
+        println("")
 
         fetchPluginExtensionProperties(
             "Signing",
             SigningExtension::class,
             project.yappExtension().signing
         ).prettyPrint()
-        println("\n")
+        println("")
+        println("")
 
         project.publishingTargets().forEach { target ->
             fetchPluginExtensionsPropertiesForTarget(target).prettyPrint()
-            println("\n")
+            println()
+            println()
         }
     }
 }
