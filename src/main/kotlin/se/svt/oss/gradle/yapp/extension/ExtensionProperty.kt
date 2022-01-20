@@ -37,16 +37,26 @@ annotation class ExtensionProperty(
 annotation class ExtensionPropertyExtractor(val extractor: KClass<out ExtensionPropertyValueExtractor>)
 
 class ExtensionPropertyDeveloperExtractor : ExtensionPropertyValueExtractor {
-    override fun extract(value: Any): String {
+    override fun asString(value: Any): String {
         if (value is Developer) {
             return "${value.id}, ${value.name} <${value.email}>, <${value.organization}> <${value.organizationUrl}>"
         }
         throw GradleException("ExtensionPropertyDeveloperExtractor only works for Developer class")
     }
+
+    override fun parser(): (String) -> Any {
+        return { it.split("|").toList() }
+    }
+
+    override fun extraDescription(): String {
+        return "Use '|' to create a list of developers, i.e. id1, name1, email1|id2, name2, email2"
+    }
 }
 
 interface ExtensionPropertyValueExtractor {
-    fun extract(value: Any): String
+    fun asString(value: Any): String
+    fun parser(): (String) -> Any
+    fun extraDescription(): String
 }
 
 abstract class PluginExtensionPropertyFormatter {
@@ -81,6 +91,8 @@ class PluginExtensionProperties(
         description: String? = null,
         example: String? = null,
         mandatory: Boolean = false,
+        extraDescription: String = "",
+        parser: ((String) -> Any)? = null,
     ) {
         properties.add(
             ExtensionProperty(
@@ -94,7 +106,9 @@ class PluginExtensionProperties(
                 inEnv = inEnv,
                 description = description,
                 example = example,
-                mandatory = mandatory
+                mandatory = mandatory,
+                extraDescription = extraDescription,
+                parser = parser,
             )
         )
     }
@@ -137,6 +151,8 @@ class PluginExtensionProperties(
         val description: String? = null,
         val example: String? = null,
         val mandatory: Boolean = false,
+        val extraDescription: String = "",
+        val parser: ((String) -> Any)? = null,
     ) {
         val value: String = value
             // Overrides value to handle formatters (secrets)
@@ -281,6 +297,8 @@ private fun buildExtensionProperties(
                     description = if (propertyAnnotation.description == NULL_VALUE) null else propertyAnnotation.description,
                     example = if (propertyAnnotation.example == NULL_VALUE) null else propertyAnnotation.example,
                     mandatory = propertyAnnotation.mandatory,
+                    extraDescription = valueWithType.fourth,
+                    parser = valueWithType.fifth,
                 )
             }
         }
@@ -288,19 +306,31 @@ private fun buildExtensionProperties(
     return extensionProperties
 }
 
+data class ValueObject<out A, out B, out C, out D, out E>(
+    val first: A,
+    val second: B,
+    val third: C,
+    val fourth: D,
+    val fifth: E
+) {
+    override fun toString(): String = "($first, $second, $third, $fourth, $fifth)"
+}
+
 private fun getValueAsString(
     annotationWrapper: AnnotationWrapper<*>,
     extension: PropertyHandler
-): Triple<String, PluginExtensionProperties.ValueType, PluginExtensionProperties.ExtensionPropertyType> {
+): ValueObject<String, PluginExtensionProperties.ValueType, PluginExtensionProperties.ExtensionPropertyType, String, ((String) -> Any)?> {
     var value = annotationWrapper.clazz.java.kotlin.memberProperties
         .first { it.name == annotationWrapper.propertyName }
         .getter.call(extension)
     var valueType: PluginExtensionProperties.ValueType = PluginExtensionProperties.ValueType.STRING
     val collectionType: PluginExtensionProperties.ExtensionPropertyType?
     val extractor: ExtensionPropertyValueExtractor? = annotationWrapper.extractor?.extractor?.createInstance()
+    val parser = extractor?.parser()
+    var extraDescription = ""
     if (value is Property<*>) {
         if (extractor != null) {
-            value = extractor.extract(value.get())
+            value = extractor.asString(value.get())
         } else {
             value = value.orNull
             if (value != null) {
@@ -311,6 +341,7 @@ private fun getValueAsString(
                     if (value is Int) {
                         valueType = PluginExtensionProperties.ValueType.NUMERIC
                         value = value.toString()
+                        extraDescription = extractor?.extraDescription() ?: "Add a numeric value."
                     }
                 }
             }
@@ -319,19 +350,20 @@ private fun getValueAsString(
     } else if (value is ListProperty<*>) {
         value = value.getOrElse(emptyList())
         value = if (extractor != null) {
-            value.map { v -> extractor.extract(v) }
+            value.map { v -> extractor.asString(v) }
         } else {
             value.map { v -> v.toString() }
         }
         value = value.joinToString(",")
         collectionType = PluginExtensionProperties.ExtensionPropertyType.LIST
+        extraDescription = extractor?.extraDescription() ?: "Use ',' to create a list, i.e. value1,value2,value3"
     } else if (value is MapProperty<*, *>) {
         value = value.orNull
         if (value != null) {
             if (value.isNotEmpty()) {
                 value.mapKeys { (k, _) -> k.toString() }
                 value = if (extractor != null) {
-                    value.mapValues { (_, v) -> extractor.extract(v) }
+                    value.mapValues { (_, v) -> extractor.asString(v) }
                 } else {
                     value.mapValues { (_, v) -> v.toString() }
                 }
@@ -340,6 +372,8 @@ private fun getValueAsString(
                 value = ""
             }
             collectionType = PluginExtensionProperties.ExtensionPropertyType.MAP
+            extraDescription = extractor?.extraDescription()
+                ?: "Use 'k:v' and ',' to create a map, i.e. key1:value1,key2:value2,key3:value3"
         } else {
             throw GradleException("MapProperty is null")
         }
@@ -347,7 +381,7 @@ private fun getValueAsString(
         throw GradleException("Unknown value object ${if (value != null) value::class.java.simpleName else null}")
     }
 
-    return Triple(value as String, valueType, collectionType)
+    return ValueObject(value as String, valueType, collectionType, extraDescription, parser)
 }
 
 private class PluginExtensionPropertySecretFormatter() : PluginExtensionPropertyFormatter() {

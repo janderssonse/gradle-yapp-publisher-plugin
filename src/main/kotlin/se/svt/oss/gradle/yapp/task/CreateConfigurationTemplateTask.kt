@@ -1,9 +1,14 @@
 package se.svt.oss.gradle.yapp.task
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.internal.tasks.userinput.UserInputHandler
 import org.gradle.api.logging.LogLevel
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.options.Option
+import org.gradle.api.tasks.options.OptionValues
 import org.gradle.internal.logging.events.OutputEventListener
 import org.gradle.internal.logging.events.StyledTextOutputEvent
 import org.gradle.internal.logging.text.StyledTextOutput.Style
@@ -19,30 +24,48 @@ import se.svt.oss.gradle.yapp.yappExtension
 import javax.inject.Inject
 
 @DisableCachingByDefault(because = "Not worth caching")
-abstract class CreateConfigurationTemplateTask
-@Inject constructor(
+abstract class CreateConfigurationTemplateTask @Inject constructor(
     private val clock: Clock,
     private val outputEventListener: OutputEventListener,
 ) : DefaultTask() {
+
     init {
         group = "yapp publisher"
-        description = "Create template for a gradle.properties based on user input"
+        description = "Create Yapp Publisher config template based on user input"
     }
 
-    private fun sendOutput(spans: List<StyledTextOutputEvent.Span>) {
-        outputEventListener.onOutput(
-            StyledTextOutputEvent(
-                clock.currentTime,
-                "QUIET",
-                LogLevel.QUIET,
-                null,
-                spans
-            )
-        )
+    private var format: String? = null
+
+    companion object {
+        val AVAILABLE_FORMATS = listOf("properties", "environment")
+    }
+
+    @Input
+    @Optional
+    open fun getFormat(): String {
+        return if (format.isNullOrEmpty()) "properties" else format!!
+    }
+
+    @Option(option = "format", description = "Set output format of the generated configuration.")
+    open fun setFormat(format: String) {
+        this.format = format
+    }
+
+    @OptionValues("format")
+    open fun getAvailableFormats(): List<String> {
+        return AVAILABLE_FORMATS
     }
 
     @TaskAction
     fun createTemplate() {
+        if (format.isNullOrBlank()) {
+            format = getFormat()
+        }
+
+        if (!getAvailableFormats().contains(format)) {
+            throw GradleException("Not a valid format. Available formats are ${getAvailableFormats().joinToString(",")}")
+        }
+
         sendOutput(
             listOf(
                 StyledTextOutputEvent.Span(
@@ -52,13 +75,13 @@ abstract class CreateConfigurationTemplateTask
                 StyledTextOutputEvent.EOL,
                 StyledTextOutputEvent.Span(
                     Style.Description,
-                    "Add configuration or just create an empty template for you gradle.properties file."
+                    "Add configuration for all publisher endpoints you need in the project."
                 ),
                 StyledTextOutputEvent.EOL,
                 StyledTextOutputEvent.EOL,
                 StyledTextOutputEvent.Span(
                     Style.Identifier,
-                    "At the end all configuration will be written to console."
+                    "At the end all configuration will be written to console as ${if (format == "properties") "properties" else "environment variables"}."
                 ),
                 StyledTextOutputEvent.EOL
             )
@@ -78,6 +101,7 @@ abstract class CreateConfigurationTemplateTask
                 userInput = userInput,
                 displayName = yappPluginExtensionProperties.displayName,
                 propPrefix = yappPluginExtensionProperties.propPrefix,
+                envPrefix = yappPluginExtensionProperties.envPrefix,
                 target = null,
                 properties = yappPluginExtensionProperties.properties().filter { p -> p.name != "targets" }
             )
@@ -101,6 +125,7 @@ abstract class CreateConfigurationTemplateTask
                     userInput = userInput,
                     displayName = signingPluginExtensionProperties.displayName,
                     propPrefix = signingPluginExtensionProperties.propPrefix,
+                    envPrefix = signingPluginExtensionProperties.envPrefix,
                     target = null,
                     properties = signingPluginExtensionProperties.properties(),
                 )
@@ -132,25 +157,53 @@ abstract class CreateConfigurationTemplateTask
                     userInput = userInput,
                     displayName = pluginExtensionsProperties.displayName,
                     propPrefix = pluginExtensionsProperties.propPrefix,
+                    envPrefix = pluginExtensionsProperties.envPrefix,
                     target = targetType.name.lowercase(),
                     properties = pluginExtensionsProperties.properties()
                 )
             )
             possiblePublishTargets.remove(targetType)
         }
-        println("yapp.targets=${groups.filter { g -> g.target != null }.map { g -> g.target }.joinToString(",")}")
-        groups.forEach { group ->
-            run {
-                println("# ${group.name}")
-                group.props.forEach { println("${it.key}=${it.value}") }
+        if (format == "properties") {
+            println("yapp.targets=${groups.filter { g -> g.target != null }.map { g -> g.target }.joinToString(",")}")
+            groups.forEach { group ->
+                run {
+                    println("# ${group.name}")
+                    group.props.forEach { println("${group.propPrefix}${it.key}=${it.value}") }
+                }
+            }
+        } else {
+            println("YAPP_TARGETS=${groups.filter { g -> g.target != null }.map { g -> g.target }.joinToString(",")}")
+            groups.forEach { group ->
+                run {
+                    println("# ${group.name}")
+                    group.props.forEach {
+                        println(
+                            "${group.envPrefix}${it.key.replace(".", "_").uppercase()}=${it.value}"
+                        )
+                    }
+                }
             }
         }
+    }
+
+    private fun sendOutput(spans: List<StyledTextOutputEvent.Span>) {
+        outputEventListener.onOutput(
+            StyledTextOutputEvent(
+                clock.currentTime,
+                "QUIET",
+                LogLevel.QUIET,
+                null,
+                spans
+            )
+        )
     }
 
     private fun configureGroup(
         userInput: UserInputHandler,
         displayName: String,
         propPrefix: String,
+        envPrefix: String,
         target: String?,
         properties: List<PluginExtensionProperties.ExtensionProperty>
     ): Group {
@@ -165,7 +218,7 @@ abstract class CreateConfigurationTemplateTask
 
         val createEmpty = userInput.askYesNoQuestion("Create empty template?", false)
 
-        val group = Group(displayName, target)
+        val group = Group(displayName, target, propPrefix, envPrefix)
         properties
             .forEach { props ->
                 run {
@@ -187,26 +240,14 @@ abstract class CreateConfigurationTemplateTask
                                 spans.add(StyledTextOutputEvent.Span(Style.Description, "Example: $example"))
                             }
 
-                            if (props.collectionType == PluginExtensionProperties.ExtensionPropertyType.LIST) {
+                            if (props.extraDescription.isNotBlank()) {
                                 spans.add(StyledTextOutputEvent.EOL)
                                 spans.add(
                                     StyledTextOutputEvent.Span(
                                         Style.Description,
-                                        "Use ',' to create a list, i.e. value1,value2,value3"
+                                        props.extraDescription
                                     )
                                 )
-                            } else if (props.collectionType == PluginExtensionProperties.ExtensionPropertyType.MAP) {
-                                spans.add(StyledTextOutputEvent.EOL)
-                                spans.add(
-                                    StyledTextOutputEvent.Span(
-                                        Style.Description,
-                                        "Use 'k:v' and ',' to create a map, i.e. key1:value1,key2:value2,key3:value3"
-                                    )
-                                )
-                            }
-                            if (props.valueType == PluginExtensionProperties.ValueType.NUMERIC) {
-                                spans.add(StyledTextOutputEvent.EOL)
-                                spans.add(StyledTextOutputEvent.Span(Style.Description, "Add a numeric value."))
                             }
                             spans.add(StyledTextOutputEvent.EOL)
                             sendOutput(spans)
@@ -218,13 +259,24 @@ abstract class CreateConfigurationTemplateTask
                         } else {
                             ""
                         }
-                    group.props["${propPrefix}${props.name}"] = answer.toString()
+                    if (props.parser != null) {
+                        val parsed = props.parser?.let { it(answer.toString()) }
+                        if (parsed is List<*>) {
+                            parsed.forEachIndexed { idx, value ->
+                                run {
+                                    group.props["${props.name}.${idx + 1}"] = value.toString()
+                                }
+                            }
+                        }
+                    } else {
+                        group.props[props.name] = answer.toString()
+                    }
                 }
             }
         return group
     }
 
-    private class Group(val name: String, val target: String?) {
+    private class Group(val name: String, val target: String?, val propPrefix: String, val envPrefix: String) {
         val props: MutableMap<String, String> = mutableMapOf()
     }
 }
