@@ -2,8 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-package se.svt.oss.gradle.yapp
-
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -29,18 +27,18 @@ import kotlin.io.path.writeText
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class AbstractIntegrationTest {
 
-    open val buildFileTemplatePath: String = "/src/test/resources/projects/build.gradle.kts"
+    open val buildFileTemplatePath: String = "/src/integrationTest/resources/projects/build.gradle.kts"
 
-    val kotlinLibProjectPath: String = "/src/test/resources/projects/kotlinlibrary"
-    val javaLibProjectPath: String = "/src/test/resources/projects/javalibrary"
-    val javaGradlePluginProjectPath: String = "/src/test/resources/projects/javagradleplugin"
-    val kotlinGradlePluginProjectPath: String = "/src/test/resources/projects/kotlingradleplugin"
-    val unknownLibraryProjectPath: String = "/src/test/resources/projects/unknown-library"
+    val kotlinLibProjectPath: String = "/src/integrationTest/resources/projects/kotlinlibrary"
+    val javaLibProjectPath: String = "/src/integrationTest/resources/projects/javalibrary"
+    val javaGradlePluginProjectPath: String = "/src/integrationTest/resources/projects/javagradleplugin"
+    val kotlinGradlePluginProjectPath: String = "/src/integrationTest/resources/projects/kotlingradleplugin"
+    val unknownLibraryProjectPath: String = "/src/integrationTest/resources/projects/unknown-library"
 
     lateinit var signingKey: String
 
-    private val pluginName = "gradle-yapp-publisher-plugin"
-    private val tmpdir: String = System.getProperty("java.io.tmpdir")
+    protected val pluginName = "gradle-yapp-publisher-plugin"
+    protected val tmpdir: String = System.getProperty("java.io.tmpdir")
 
     @BeforeAll
     fun beforeAll() {
@@ -52,7 +50,6 @@ abstract class AbstractIntegrationTest {
         val pathConf = PathConf("", yappPluginTmpDir())
 
         signingKey = resource("gpg/sec_signingkey_ascii_newlineliteral.asc").readText()
-        println("INHEREHERHEHR")
 
         val fileArray = File("./").listFiles { file ->
             !file.name.matches(Regex("""build|.gradle|docs|gradle|gradle|.idea|LICENSES|.reuse|.git|DEVELOPMENT.md|LICENSE"""))
@@ -65,8 +62,6 @@ abstract class AbstractIntegrationTest {
         fileArray.forEach { it.copyRecursively(File("${yappPluginTmpDir()}/${it.name}")) }
 
         publishToTmp(ConfigurationData.yappBasePlugin(), pathConf = pathConf)
-
-        println("INHEREHERHEHR2")
     }
 
     fun publishToTmp(
@@ -154,6 +149,8 @@ abstract class AbstractIntegrationTest {
         const val JAVAGRADLEPLUG: String = "javagradleplug"
         const val KOTLINGRADLEPLUG: String = "kotlingradleplug"
         const val UNKNOWN: String = "unknown"
+
+        const val MAVEN_CENTRAL = "maven_central"
     }
 
     fun yappPluginTmpDir() = "$testDirPath/yappinstall"

@@ -1,4 +1,3 @@
-package se.svt.oss.gradle.yapp
 
 import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -14,7 +13,6 @@ import kotlin.io.path.ExperimentalPathApi
 class SourceDocumentationArtifactIntegrationTest : AbstractIntegrationTest() {
 
     lateinit var pathConf: PathConf
-    private val tmpdir: String = System.getProperty("java.io.tmpdir")
 
     @BeforeEach
     fun before() {

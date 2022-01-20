@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2021 Sveriges Television AB
 //
 // SPDX-License-Identifier: Apache-2.0
-package se.svt.oss.gradle.yapp
 
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeEach
@@ -11,7 +10,7 @@ import org.xmlunit.diff.Diff
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension
 import kotlin.io.path.ExperimentalPathApi
-import se.svt.oss.gradle.yapp.ConfigurationData as conf
+import ConfigurationData as conf
 
 @ExperimentalPathApi
 @ExtendWith(
@@ -134,7 +133,7 @@ class PropertiesIntegrationTest : AbstractIntegrationTest() {
         publishToTmp(
             conf.buildFileData(group, version, buildGradleFile = pathConf.buildFilePath),
             """
-                
+
             yapp {
                 targets.add("maven_central")
                 mavenPublishing {

@@ -1,9 +1,8 @@
 // SPDX-FileCopyrightText: 2021 Sveriges Television AB
 //
 // SPDX-License-Identifier: Apache-2.0
-package se.svt.oss.gradle.yapp
 
-import se.svt.oss.gradle.yapp.AbstractIntegrationTest.Companion.TLD
+import AbstractIntegrationTest.Companion.TLD
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.readText

@@ -84,3 +84,30 @@ tasks.named<Wrapper>("wrapper") {
     distributionType = Wrapper.DistributionType.ALL
     gradleVersion = "7.3"
 }
+
+/* NOTE: The following is to separate the integrationtests and run the after regular tests
+We should be able to replace this conf with the jvm-test-suite plugin that is incubating in gradle
+However, that was unusable for reasons at the time, but return to it in next version or so
+*/
+sourceSets {
+    create("integrationTest") {
+        kotlin {
+            compileClasspath += main.get().output + configurations.testRuntimeClasspath
+            runtimeClasspath += output + compileClasspath
+        }
+    }
+}
+
+val integrationTest = task<Test>("integrationTest") {
+    description = "Runs the integration tests"
+    group = "verification"
+    testClassesDirs = sourceSets["integrationTest"].output.classesDirs
+    classpath = sourceSets["integrationTest"].runtimeClasspath
+    mustRunAfter(tasks["test"])
+    useJUnitPlatform()
+}
+
+tasks.check {
+    dependsOn(integrationTest)
+}
+//END of IntegrationTest setup

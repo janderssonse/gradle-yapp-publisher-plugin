@@ -1,11 +1,6 @@
-package se.svt.oss.gradle.yapp.config
-
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import se.svt.oss.gradle.yapp.AbstractIntegrationTest
-import se.svt.oss.gradle.yapp.ConfigurationData
-import se.svt.oss.gradle.yapp.PathConf
 import kotlin.io.path.ExperimentalPathApi
 
 @ExperimentalPathApi
@@ -64,7 +59,7 @@ class ProjectPublishTargetTypeIntegrationTest : AbstractIntegrationTest() {
         publishToTmp(
             ConfigurationData.buildFileData(
                 group, version, "",
-                plugin2 = """kotlin("jvm") version "1.5.21" 
+                plugin2 = """kotlin("jvm") version "1.5.21"
                 | `java-library`""".trimMargin(),
                 buildGradleFile = pathConf.buildFilePath
             ),
@@ -85,7 +80,7 @@ class ProjectPublishTargetTypeIntegrationTest : AbstractIntegrationTest() {
         publishToTmp(
             ConfigurationData.buildFileData(
                 group, version, "",
-                plugin2 = """id("org.jetbrains.kotlin.jvm") version "1.5.31"  
+                plugin2 = """id("org.jetbrains.kotlin.jvm") version "1.5.31"
                 | `java-gradle-plugin`""".trimMargin(),
                 buildGradleFile = pathConf.buildFilePath
             ),
@@ -146,8 +141,8 @@ class ProjectPublishTargetTypeIntegrationTest : AbstractIntegrationTest() {
     }
 
     private fun gradlePluginBlock() = """
-        
-        
+
+
 
 
 gradlePlugin {
