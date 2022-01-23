@@ -8,41 +8,41 @@
     <!-- that they should prefer consuming it instead. -->
     <!-- do_not_remove: published-with-gradle-metadata -->
     <modelVersion>4.0.0</modelVersion>
-    <groupId>se.property</groupId>
+    <groupId>se.env</groupId>
     <artifactId>kotlinlibrary</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
-    <name>property name</name>
-    <description>property description</description>
-    <url>http://propertyurl.se</url>
-    <inceptionYear>1901</inceptionYear>
+    <version>{VERSION}</version>
+    <name>yapp.mavenPublishing.name</name>
+    <description>yapp.mavenPublishing.description</description>
+    <url>yapp.mavenPublishing.url</url>
+    <inceptionYear>yapp.mavenPublishing.inceptionYear</inceptionYear>
     <licenses>
         <license>
-            <name>property licensename</name>
-            <url>property licenseurl</url>
-            <distribution>property distribution</distribution>
-            <comments>property comments</comments>
+            <name>yapp.mavenPublishing.licenseName</name>
+            <url>yapp.mavenPublishing.licenseUrl</url>
+            <distribution>yapp.mavenPublishing.licenseDistribution</distribution>
+            <comments>yapp.mavenPublishing.licenseComments</comments>
         </license>
     </licenses>
     <developers>
         <developer>
-            <id>property developerid</id>
-            <name>property developername</name>
-            <email>property developeremail</email>
+            <id>yapp.mavenPublishing.developerId</id>
+            <name>yapp.mavenPublishing.developerName</name>
+            <email>yapp.mavenPublishing.developerEmail</email>
             <organization>org</organization>
             <organizationUrl>orgu</organizationUrl>
         </developer>
         <developer>
-            <id>property developerid2</id>
-            <name>property developername2</name>
-            <email>property developeremail2</email>
+            <id>yapp.mavenPublishing.developerId2</id>
+            <name>yapp.mavenPublishing.developerName2</name>
+            <email>yapp.mavenPublishing.developerEmail2</email>
             <organization>org2</organization>
             <organizationUrl>orgu2</organizationUrl>
         </developer>
     </developers>
     <scm>
-        <connection>property scmconnection</connection>
-        <developerConnection>property scmdeveloperconnection</developerConnection>
-        <url>property scmurl</url>
+        <connection>yapp.mavenPublishing.scmConnection</connection>
+        <developerConnection>yapp.mavenPublishing.scmDeveloperConnection</developerConnection>
+        <url>yapp.mavenPublishing.scmUrl</url>
     </scm>
     <dependencies>
         <dependency>

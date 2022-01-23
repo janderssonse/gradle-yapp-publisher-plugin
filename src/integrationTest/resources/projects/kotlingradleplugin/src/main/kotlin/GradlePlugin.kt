@@ -5,7 +5,7 @@
 import org.gradle.api.Project
 import org.gradle.api.Plugin
 
-class KotlinGradlePlugin: Plugin<Project> {
+class GradlePlugin: Plugin<Project> {
     override fun apply(project: Project) {
         project.tasks.register("greeting") { task ->
             task.doLast {

@@ -7,127 +7,174 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import se.svt.oss.gradle.yapp.publishingtarget.PublishingTargetType.MAVEN_CENTRAL
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension
-import kotlin.io.path.ExperimentalPathApi
 
-@ExperimentalPathApi
 @ExtendWith(
     SystemStubsExtension::class
 )
 class SigningPluginIntegrationTest : AbstractIntegrationTest() {
 
-    lateinit var pathConf: PathConf
-
     @BeforeEach
     fun before() {
-        pathConf = PathConf(kotlinLibProjectPath, yappPluginTmpDir())
-        copyTemplateBuildFile(pathConf)
+        pathDict = PathDict(KOTLINLIB_PROJECTPATH)
+        copyBuildFileTemplate(pathDict)
     }
 
     @Test
     fun `signing when signing is enabled and is a release version or overrides snapshot`() {
-        val group = "$TLD.$SIGNING"
+
+        val group = "$TLD.${SIGNING.lowercase()}"
         var version = "0.0.7"
         // val signingKey = resource("gpg/sec_signingkey.gpg").canonicalPath
 
-        var signatures = signatures(version, pathConf)
+        var signatures = signatures(version, pathDict)
 
         publishToTmp(
-            ConfigurationData.buildFileData(group, version, buildGradleFile = pathConf.buildFilePath),
-            ConfigurationData.yappBuildGradleConfSigning(signingKey, true),
-            pathConf = pathConf
+            ConfigurationData.buildFileData(
+                group, version,
+                ConfigurationData.buildFileYappSection(
+                    listOf(MAVEN_CENTRAL.lowercase()),
+                    ConfigurationData.buildFileMavenPublishingSection(group, version),
+                    ConfigurationData.buildFileSigningSection(signingKey, true),
+                ),
+                buildGradleFile = pathDict.buildFilePath
+            ),
+            pathDict = pathDict
         )
-        assertIterableEquals(generatedSignatures(pathConf.libraryDirName, SIGNING, version), signatures)
+        assertIterableEquals(publishedSignatures(pathDict.libraryDirName, SIGNING, version), signatures)
 
         version = "0.0.7-SNAPSHOT"
 
-        copyTemplateBuildFile(pathConf)
+        copyBuildFileTemplate(pathDict)
 
-        signatures = signatures(version, pathConf)
+        signatures = signatures(version, pathDict)
         publishToTmp(
-            ConfigurationData.buildFileData(group, version, buildGradleFile = pathConf.buildFilePath),
-            ConfigurationData.yappBuildGradleConfSigning(signingKey, true, true),
-            pathConf = pathConf
+            ConfigurationData.buildFileData(
+                group, version,
+                ConfigurationData.buildFileYappSection(
+                    listOf(MAVEN_CENTRAL.lowercase()),
+                    ConfigurationData.buildFileMavenPublishingSection(group, version),
+                    ConfigurationData.buildFileSigningSection(signingKey, true, true)
+                ),
+                buildGradleFile = pathDict.buildFilePath
+            ),
+            pathDict = pathDict
         )
 
-        assertIterableEquals(generatedSignatures(pathConf.libraryDirName, "signing", version), signatures)
+        assertIterableEquals(publishedSignatures(pathDict.libraryDirName, "signing", version), signatures)
 
-        copyTemplateBuildFile(pathConf)
+        copyBuildFileTemplate(pathDict)
 
         version = "0.0.8-SNAPSHOT"
         publishToTmp(
-            ConfigurationData.buildFileData(group, version, buildGradleFile = pathConf.buildFilePath),
-            ConfigurationData.buildFileYappConfData(group, version, signingKey, true, false),
-            pathConf = pathConf
+            ConfigurationData.buildFileData(
+                group, version,
+                ConfigurationData.buildFileYappSection(
+                    listOf(MAVEN_CENTRAL.lowercase()),
+                    mavenpublishingsection = ConfigurationData.buildFileMavenPublishingSection(group, version),
+                    signingsection = ConfigurationData.buildFileSigningSection(signingKey, true,)
+                ),
+                buildGradleFile = pathDict.buildFilePath
+            ),
+            pathDict = pathDict
 
         )
 
-        assertTrue(generatedSignatures(pathConf.libraryDirName, "signing", version).isEmpty())
+        assertTrue(publishedSignatures(pathDict.libraryDirName, "signing", version).isEmpty())
     }
 
     @Test
     fun `not signing when signing is disabled or a snapshot version`() {
 
-        copyTemplateBuildFile(pathConf)
-        val group = "$TLD.$SIGNING"
+        copyBuildFileTemplate(pathDict)
+        val group = "$TLD.${SIGNING.lowercase()}"
         var version = "0.0.9"
 
         publishToTmp(
-            ConfigurationData.buildFileData(group, version, buildGradleFile = pathConf.buildFilePath),
-            ConfigurationData.buildFileYappConfData(group, version, signingKey, false),
-            pathConf = pathConf
+            ConfigurationData.buildFileData(
+                group, version,
+                ConfigurationData.buildFileYappSection(
+                    listOf(MAVEN_CENTRAL.lowercase()),
+                    mavenpublishingsection = ConfigurationData.buildFileMavenPublishingSection(group, version),
+                    signingsection = ConfigurationData.buildFileSigningSection(signingKey, false)
+                ),
+                buildGradleFile = pathDict.buildFilePath
+            ),
+            pathDict = pathDict
 
         )
-        assertTrue(generatedSignatures(pathConf.libraryDirName, "signing", version).isEmpty())
+        assertTrue(publishedSignatures(pathDict.libraryDirName, "signing", version).isEmpty())
 
-        copyTemplateBuildFile(pathConf)
+        copyBuildFileTemplate(pathDict)
 
         version = "0.0.10-SNAPSHOT"
         publishToTmp(
-            ConfigurationData.buildFileData(group, version, buildGradleFile = pathConf.buildFilePath),
-            ConfigurationData.buildFileYappConfData(group, version, signingKey, true),
+            ConfigurationData.buildFileData(
+                group, version,
+                ConfigurationData.buildFileYappSection(
+                    listOf(MAVEN_CENTRAL.lowercase()),
+                    mavenpublishingsection = ConfigurationData.buildFileMavenPublishingSection(group, version),
+                    signingsection = ConfigurationData.buildFileSigningSection(signingKey, true)
+                ),
+                buildGradleFile = pathDict.buildFilePath
+            ),
 
-            pathConf = pathConf
+            pathDict = pathDict
         )
     }
 
     @Test
     fun `same signing artifacts regardless if key is binary format or text format`() {
-        var group = "$TLD.$SIGNING"
-        val version = "0.0.7"
+        var group = "$TLD.${SIGNING.lowercase()}"
+        val version = version()
 
-        val signatures = signatures(version, pathConf)
+        val signatures = signatures(version, pathDict)
 
         publishToTmp(
-            ConfigurationData.buildFileData(group, version, buildGradleFile = pathConf.buildFilePath),
-            ConfigurationData.buildFileYappConfData(group, version, signingKey, true),
-            pathConf = pathConf
+            ConfigurationData.buildFileData(
+                group, version,
+                ConfigurationData.buildFileYappSection(
+                    listOf(MAVEN_CENTRAL.lowercase()),
+                    mavenpublishingsection = ConfigurationData.buildFileMavenPublishingSection(group, version),
+                    signingsection = ConfigurationData.buildFileSigningSection(signingKey, true)
+                ),
+                buildGradleFile = pathDict.buildFilePath
+            ),
+            pathDict = pathDict
         )
 
-        assertIterableEquals(generatedSignatures(pathConf.libraryDirName, "signing", version), signatures)
-        val generatedSignatures = generatedSignatures(pathConf.libraryDirName, "signing", version)
+        assertIterableEquals(publishedSignatures(pathDict.libraryDirName, "signing", version), signatures)
+        val generatedSignatures = publishedSignatures(pathDict.libraryDirName, "signing", version)
 
         signingKey = resource("gpg/sec_signingkey.gpg").canonicalPath
 
-        group = "$TLD.${SIGNING}2"
+        group = "$TLD.${SIGNING.lowercase()}2"
 
-        copyTemplateBuildFile(pathConf)
+        copyBuildFileTemplate(pathDict)
         publishToTmp(
-            ConfigurationData.buildFileData(group, version, buildGradleFile = pathConf.buildFilePath),
-            ConfigurationData.buildFileYappConfData(group, version, signingKey, true),
-            pathConf = pathConf
+            ConfigurationData.buildFileData(
+                group, version,
+                ConfigurationData.buildFileYappSection(
+                    listOf(MAVEN_CENTRAL.lowercase()),
+                    mavenpublishingsection = ConfigurationData.buildFileMavenPublishingSection(group, version),
+                    signingsection = ConfigurationData.buildFileSigningSection(signingKey, true)
+                ),
+                buildGradleFile = pathDict.buildFilePath
+            ),
+            pathDict = pathDict
 
         )
-        assertIterableEquals(generatedSignatures(pathConf.libraryDirName, "signing2", version), generatedSignatures)
+        assertIterableEquals(publishedSignatures(pathDict.libraryDirName, "signing2", version), generatedSignatures)
     }
 
-    private fun signatures(version: String, pathConf: PathConf): List<String> {
+    private fun signatures(version: String, pathDict: PathDict): List<String> {
         val signatures = listOf(
-            "${pathConf.libraryDirName}-$version.pom.asc",
-            "${pathConf.libraryDirName}-$version-javadoc.jar.asc",
-            "${pathConf.libraryDirName}-$version.jar.asc",
-            "${pathConf.libraryDirName}-$version.module.asc",
-            "${pathConf.libraryDirName}-$version-sources.jar.asc"
+            "${pathDict.libraryDirName}-$version.pom.asc",
+            "${pathDict.libraryDirName}-$version-javadoc.jar.asc",
+            "${pathDict.libraryDirName}-$version.jar.asc",
+            "${pathDict.libraryDirName}-$version.module.asc",
+            "${pathDict.libraryDirName}-$version-sources.jar.asc"
         )
         return signatures.sorted()
     }

@@ -2,43 +2,52 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import ConfigurationData.Companion.buildFileMavenPublishingSection
+import ConfigurationData.Companion.buildFileYappSection
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.xmlunit.diff.Diff
+import se.svt.oss.gradle.yapp.publishingtarget.PublishingTargetType.MAVEN_CENTRAL
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension
-import kotlin.io.path.ExperimentalPathApi
 import ConfigurationData as conf
 
-@ExperimentalPathApi
-@ExtendWith(
-    SystemStubsExtension::class
-)
+@ExtendWith(SystemStubsExtension::class)
 class PropertiesIntegrationTest : AbstractIntegrationTest() {
-
-    lateinit var pathConf: PathConf
 
     @BeforeEach
     fun before() {
-        pathConf = PathConf(kotlinLibProjectPath, yappPluginTmpDir())
-        copyTemplateBuildFile(pathConf)
+        pathDict = PathDict(KOTLINLIB_PROJECTPATH)
+        copyBuildFileTemplate(pathDict)
     }
 
     @Test
     fun `properties are read from build file`() {
 
         val group = "$TLD.$BUILD"
-        val version = "0.0.2-SNAPSHOT"
+        val version = version()
 
         publishToTmp(
-            conf.buildFileData(group, version, buildGradleFile = pathConf.buildFilePath),
-            conf.buildFileYappConfData(group, version),
-            pathConf = pathConf
+            conf.buildFileData(
+                group, version,
+                buildFileYappSection(
+                    listOf(MAVEN_CENTRAL.lowercase()),
+                    buildFileMavenPublishingSection(group, version)
+                ),
+
+                buildGradleFile = pathDict.buildFilePath
+            ),
+            pathDict = pathDict
         )
 
-        val pomDiff: Diff = diff(resource("pom/buildGradleConf.pom"), generatedPom(pathConf.libraryDirName, "build", version))
+        val referencePom = resource("pom/publishingtargetverification/${MAVEN_CENTRAL.lowercase()}.pom").readText()
+            .replace("{GROUPID}", group)
+            .replace("{ARTIFACTID}", KOTLINLIB)
+            .replace("{VERSION}", version)
+
+        val pomDiff: Diff = diff(referencePom, publishedPomPath(pathDict.libraryDirName, "build", version))
 
         assertFalse(pomDiff.hasDifferences())
     }
@@ -46,16 +55,23 @@ class PropertiesIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `properties are read from properties file`() {
         val group = "$TLD.$PROPERTY"
-        val version = "0.0.3-SNAPSHOT"
+        val version = version()
 
         publishToTmp(
-            conf.buildFileData(group, version, buildGradleFile = pathConf.buildFilePath),
-            "",
-            conf.yappPropertiesConf(pathConf.libraryDirName, group, version),
-            pathConf = pathConf
+            conf.buildFileData(
+                group, version,
+                buildGradleFile = pathDict.buildFilePath
+            ),
+            propertiesFileData = conf.propertiesFileData(pathDict.libraryDirName, group, version),
+            pathDict = pathDict
         )
+        val referencePom = resource("pom/property.pom").readText()
+            .replace("{GROUPID}", group)
+            .replace("{ARTIFACTID}", KOTLINLIB)
+            .replace("{VERSION}", version)
 
-        val pomDiff: Diff = diff(resource("pom/propertyConf.pom"), generatedPom(pathConf.libraryDirName, "property", version))
+        val pomDiff: Diff =
+            diff(referencePom, publishedPomPath(pathDict.libraryDirName, PROPERTY, version))
         println(pomDiff.toString())
 
         assertFalse(pomDiff.hasDifferences())
@@ -65,18 +81,22 @@ class PropertiesIntegrationTest : AbstractIntegrationTest() {
     fun `properties are read from environment`(environmentVariables: EnvironmentVariables) {
 
         val group = "$TLD.$ENV"
-        val version = "0.0.4-SNAPSHOT"
+        val version = version()
 
-        conf.systemEnv().entries.forEach {
+        conf.systemEnvironmentMavenPublishing(version).entries.forEach {
             environmentVariables.set(it.key, it.value)
         }
+        val referencePom = resource("pom/environment.pom").readText()
+            .replace("{GROUPID}", group)
+            .replace("{ARTIFACTID}", KOTLINLIB)
+            .replace("{VERSION}", version)
 
         publishToTmp(
-            conf.buildFileData(group, version, buildGradleFile = pathConf.buildFilePath),
-            pathConf = pathConf
+            conf.buildFileData(group, version, buildGradleFile = pathDict.buildFilePath),
+            pathDict = pathDict
         )
 
-        val pomDiff: Diff = diff(resource("pom/envConf.pom"), generatedPom(pathConf.libraryDirName, "env", version))
+        val pomDiff: Diff = diff(referencePom, publishedPomPath(pathDict.libraryDirName, ENV, version))
 
         assertFalse(pomDiff.hasDifferences())
     }
@@ -85,83 +105,88 @@ class PropertiesIntegrationTest : AbstractIntegrationTest() {
     fun `properties are read in order build file, properties file, system env`(environmentVariables: EnvironmentVariables) {
 
         val group = "$TLD.$ORDER"
-        val version = "0.0.4-SNAPSHOT"
+        val version = version()
 
         environmentVariables.set("YAPP_MAVENPUBLISHING_NAME", "envname")
         environmentVariables.set("YAPP_TARGETS", "maven_central")
 
         publishToTmp(
-            conf.buildFileData(group, version, buildGradleFile = pathConf.buildFilePath),
+            conf.buildFileData(
+                group, version,
+                buildFileYappSection(
+                    listOf(MAVEN_CENTRAL.lowercase()),
+                    buildFileMavenPublishingSection(group, version, name = "confname")
+                ),
+                buildGradleFile = pathDict.buildFilePath
+            ),
 
-            conf.buildFileYappConfData(group, version, name = "confname"),
-            """yapp.mavenPublishing.name=propertyname
+            propertiesFileData = """yapp.mavenPublishing.name=propertyname
                 |yapp.targets=maven_central
             """.trimMargin(),
-            pathConf = pathConf
+            pathDict = pathDict
         )
 
-        xpathFieldDiff("m:project/m:name", "confname", "order", version, pathConf.libraryDirName)
+        xpathFieldDiff("m:project/m:name", "confname", "order", version, pathDict.libraryDirName)
 
-        copyTemplateBuildFile(pathConf)
+        copyBuildFileTemplate(pathDict)
         publishToTmp(
-            conf.buildFileData(group, version, buildGradleFile = pathConf.buildFilePath), "",
-            """yapp.mavenPublishing.name=propertyname
+            conf.buildFileData(group, version, buildGradleFile = pathDict.buildFilePath),
+            propertiesFileData = """yapp.mavenPublishing.name=propertyname
                 |yapp.targets=maven_central
             """.trimMargin(),
 
-            pathConf = pathConf
+            pathDict = pathDict
         )
 
-        xpathFieldDiff("m:project/m:name", "propertyname", "order", version, pathConf.libraryDirName)
+        xpathFieldDiff("m:project/m:name", "propertyname", "order", version, pathDict.libraryDirName)
 
-        copyTemplateBuildFile(pathConf)
+        copyBuildFileTemplate(pathDict)
         publishToTmp(
-            conf.buildFileData(group, version, buildGradleFile = pathConf.buildFilePath), "", "",
+            conf.buildFileData(group, version, buildGradleFile = pathDict.buildFilePath), "",
 
-            pathConf = pathConf
+            pathDict = pathDict
         )
 
-        xpathFieldDiff("m:project/m:name", "envname", "order", version, pathConf.libraryDirName)
+        xpathFieldDiff("m:project/m:name", "envname", "order", version, pathDict.libraryDirName)
     }
 
     @Test
     fun `properties are read in order build file, properties file`() {
 
         val group = "$TLD.$ORDER"
-        val version = "0.0.5-SNAPSHOT"
+        val version = version()
 
         publishToTmp(
-            conf.buildFileData(group, version, buildGradleFile = pathConf.buildFilePath),
-            """
-
-            yapp {
-                targets.add("maven_central")
-                mavenPublishing {
-                    name.set("confname")
-                }
-            }
-            """.trimIndent(),
-            """yapp.mavenPublishing.name=propertyname
+            conf.buildFileData(
+                group, version,
+                buildFileYappSection(
+                    listOf(MAVEN_CENTRAL.lowercase()),
+                    buildFileMavenPublishingSection(group, version, "confname")
+                ),
+                buildGradleFile = pathDict.buildFilePath
+            ),
+            propertiesFileData = """yapp.mavenPublishing.name=propertyname
                 |yapp.targets=maven_central
             """.trimMargin(),
 
-            pathConf = pathConf
+            pathDict = pathDict
         )
 
-        xpathFieldDiff("m:project/m:name", "confname", "order", version, pathConf.libraryDirName)
+        xpathFieldDiff("m:project/m:name", "confname", "order", version, pathDict.libraryDirName)
 
-        copyTemplateBuildFile(pathConf)
+        copyBuildFileTemplate(pathDict)
         publishToTmp(
-            conf.buildFileData(group, version, buildGradleFile = pathConf.buildFilePath), "",
+            conf.buildFileData(group, version, buildGradleFile = pathDict.buildFilePath),
+            propertiesFileData =
             """yapp.mavenPublishing.name=propertyname
                 |
                 |yapp.targets=maven_central
             """.trimMargin(),
 
-            pathConf = pathConf
+            pathDict = pathDict
         )
 
-        xpathFieldDiff("m:project/m:name", "propertyname", "order", version, pathConf.libraryDirName)
+        xpathFieldDiff("m:project/m:name", "propertyname", "order", version, pathDict.libraryDirName)
     }
 
     fun yappConf() = """yapp {

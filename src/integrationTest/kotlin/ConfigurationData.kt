@@ -4,32 +4,31 @@
 
 import AbstractIntegrationTest.Companion.TLD
 import java.nio.file.Path
-import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.readText
 
-@ExperimentalPathApi
-object ConfigurationData {
+class ConfigurationData {
 
-    private const val pluginName = "gradle-yapp-publisher-plugin"
+    companion object {
+        private const val pluginName = "gradle-yapp-publisher-plugin"
 
-    fun buildFileData(
-        group: String,
-        version: String,
-        yappConf: String = "",
-        plugin1: String = "id(\"maven-publish\")\n",
-        plugin2: String = "kotlin(\"jvm\") version \"1.5.30\"",
-        buildGradleFile: Path
-    ): String {
+        fun buildFileData(
+            group: String,
+            version: String,
+            yappConf: String = "",
+            plugin1: String = "id(\"maven-publish\")\n",
+            plugin2: String = "kotlin(\"jvm\") version \"1.5.30\"",
+            buildGradleFile: Path
+        ): String {
 
-        return buildGradleFile.readText()
-            .replace("{group}", group)
-            .replace("{version}", version)
-            .replace("{yappConf}", yappConf)
-            .replace("{plugin1}", plugin1)
-            .replace("{plugin2}", plugin2)
-    }
+            return buildGradleFile.readText()
+                .replace("{group}", group)
+                .replace("{version}", version)
+                .replace("{yappConf}", yappConf)
+                .replace("{plugin1}", plugin1)
+                .replace("{plugin2}", plugin2)
+        }
 
-    fun yappPropertiesConf(name: String = pluginName, group: String, version: String) = """
+        fun propertiesFileData(name: String = pluginName, group: String, version: String) = """
        |yapp.targets=maven_central
        |yapp.mavenPublishing.groupId=$group
        |yapp.mavenPublishing.version=$version
@@ -64,122 +63,144 @@ object ConfigurationData {
        |yapp.ossrhPassword=proppw
     """.trimMargin()
 
-    fun buildFileYappConfData(
-        group: String,
-        version: String,
-        signingKey: String = "",
-        signingEnabled: Boolean = false,
-        signSnapshot: Boolean = false,
-        name: String = "pn",
-        withSourceArtifact: Boolean = true,
-        withDocArtifact: Boolean = true,
-        emptySourceArtifact: Boolean = false,
-        emptyDocArtifact: Boolean = false,
-    ) = """
+        fun buildFileYappSection(
+            targets: List<String>,
+            mavenpublishingsection: String = "",
+            githubsection: String = "",
+            gradleportalsection: String = "",
+            signingsection: String = "",
+            withSourceArtifact: Boolean = true,
+            withDocArtifact: Boolean = true,
+            emptySourceArtifact: Boolean = false,
+            emptyDocArtifact: Boolean = false,
+        ) = """
 
 yapp {
-    targets.add("maven_central")
+    targets.set(listOf(${targets.map { "\"${it}\"" }.joinToString(",")}))
     withSourceArtifact.set($withSourceArtifact)
     withDocArtifact.set($withDocArtifact)
     emptySourceArtifact.set($emptySourceArtifact)
     emptyDocArtifact.set($emptyDocArtifact)
 
-    mavenPublishing {
-        groupId.set("$group")
-        version.set("$version")
+     $mavenpublishingsection
 
-        name.set("$name")
-        description.set("pd")
-        url.set("http://p.se")
-        inceptionYear.set("1999")
+     $githubsection
 
-        licenseName.set("pln")
-        licenseUrl.set("plu")
-        licenseDistribution.set("pld")
-        licenseComments.set("plc")
+     $gradleportalsection
+
+     $signingsection
 
 
-        developers.set(listOf(
-            Developer("pdi", "pdn", "pde","pdo","pou"),
-            Developer("pdi2", "pdn2", "pde2","pdo2","pou2")))
+}
+        """.trimIndent()
+
+        fun buildFileMavenPublishingSection(
+            group: String,
+            version: String,
+            name: String = "name"
+        ) =
+            """
+
+        mavenPublishing {
+            groupId.set("$group")
+            version.set("$version")
+
+            name.set("$name")
+            description.set("pd")
+            url.set("http://p.se")
+            inceptionYear.set("1999")
+
+            licenseName.set("pln")
+            licenseUrl.set("plu")
+            licenseDistribution.set("pld")
+            licenseComments.set("plc")
 
 
-        scmUrl.set("psu")
-        scmConnection.set("psc")
-        scmDeveloperConnection.set("psd")
+            developers.set(listOf(
+                Developer("pdi", "pdn", "pde","pdo","pou"),
+                Developer("pdi2", "pdn2", "pde2","pdo2","pou2")))
+
+
+            scmUrl.set("psu")
+            scmConnection.set("psc")
+            scmDeveloperConnection.set("psd")
+        }
+            """.trimIndent()
+
+        fun buildFileGitHubSection() = """
+
+        gitHub {
+         namespace.set("octocat")
+         repoName.set("octocatproject")
     }
+        """.trimIndent()
 
-    signing {
+        fun buildFileGradlePortalSection(id: String) = """
+         gradlePortalPublishing {
+       id.set("$id")
+        description.set("description")
+        webSite.set("http://a")
+        vcsUrl.set("http:/gti")
+        tags.set(listOf("a","b"))
+        implementationClass.set("GradlePlugin")
+       displayName.set("displayname")
+    }
+        """.trimIndent()
+
+        fun buildFileSigningSection(
+            signingKey: String = "",
+            signingEnabled: Boolean = false,
+            signSnapshot: Boolean = false,
+        ) = """
+         signing {
         enabled.set($signingEnabled)
         signSnapshot.set($signSnapshot)
         keyId.set("3DC10F04")
         keySecret.set("signing")
         key.set("$signingKey")
     }
+        """.trimIndent()
 
+        fun systemEnvironmentMavenPublishing(version: String): Map<String, String> {
+            val envPrefix = "YAPP_MAVENPUBLISHING_"
+            return mapOf(
+                Pair("YAPP_TARGETS", "maven_central"),
+                Pair("${envPrefix}NAME", "yapp.mavenPublishing.name"),
+                Pair("${envPrefix}DESCRIPTION", "yapp.mavenPublishing.description"),
+                Pair("${envPrefix}URL", "yapp.mavenPublishing.url"),
+                Pair("${envPrefix}INCEPTIONYEAR", "yapp.mavenPublishing.inceptionYear"),
+                Pair("${envPrefix}LICENSENAME", "yapp.mavenPublishing.licenseName"),
+                Pair("${envPrefix}LICENSEURL", "yapp.mavenPublishing.licenseUrl"),
+                Pair("${envPrefix}LICENSEDISTRIBUTION", "yapp.mavenPublishing.licenseDistribution"),
+                Pair("${envPrefix}LICENSECOMMENTS", "yapp.mavenPublishing.licenseComments"),
+                Pair(
+                    "${envPrefix}DEVELOPER",
+                    "yapp.mavenPublishing.developerId,yapp.mavenPublishing.developerName, yapp.mavenPublishing.developerEmail, org, orgu"
+                ),
+                Pair(
+                    "${envPrefix}DEVELOPER.2",
+                    "yapp.mavenPublishing.developerId2,yapp.mavenPublishing.developerName2, yapp.mavenPublishing.developerEmail2, org2, orgu2"
+                ),
+                Pair("${envPrefix}SCMURL", "yapp.mavenPublishing.scmUrl"),
+                Pair("${envPrefix}SCMCONNECTION", "yapp.mavenPublishing.scmConnection"),
+                Pair("${envPrefix}SCMDEVELOPERCONNECTION", "yapp.mavenPublishing.scmDeveloperConnection"),
+                Pair("${envPrefix}GROUPID", "$TLD.env"),
+                Pair("${envPrefix}VERSION", "$version"),
+                Pair("${envPrefix}ARTIFACTID", "kotlinlibrary"),
+                Pair("YAPP_SIGNING_ENABLED", "false"),
+                Pair("YAPP_SIGNING_SIGNSNAPSHOT", "false"),
+                Pair("YAPP_SIGNING_KEYID", "yapp.signing.keyId"),
+                Pair("YAPP_SIGNING_KEYSECRET", "yapp.signing.keySecret"),
+                Pair("YAPP_SIGNING_KEY", "yapp.signing.keyFile"),
+                Pair("YAPP_OSSRHUSER", "yapp.ossrhUser"),
+                Pair("YAPP_OSSRHPASSWORD", "yapp.ossrhPassword")
+            )
+        }
 
-}
-    """.trimIndent()
-
-    fun yappBuildGradleConfSigning(
-        signingKey: String = "",
-        signingEnabled: Boolean = false,
-        signSnapshot: Boolean = false
-    ) = """
-
-yapp {
-targets.add("maven_central")
-
-    signing {
-        enabled.set($signingEnabled)
-        signSnapshot.set($signSnapshot)
-        keyId.set("3DC10F04")
-        keySecret.set("signing")
-        key.set("$signingKey")
-    }
-}
-    """.trimIndent()
-
-    fun systemEnv(): Map<String, String> {
-        val envPrefix = "YAPP_MAVENPUBLISHING_"
-        return mapOf(
-            Pair("YAPP_TARGETS", "maven_central"),
-            Pair("${envPrefix}NAME", "yapp.mavenPublishing.name"),
-            Pair("${envPrefix}DESCRIPTION", "yapp.mavenPublishing.description"),
-            Pair("${envPrefix}URL", "yapp.mavenPublishing.url"),
-            Pair("${envPrefix}INCEPTIONYEAR", "yapp.mavenPublishing.inceptionYear"),
-            Pair("${envPrefix}LICENSENAME", "yapp.mavenPublishing.licenseName"),
-            Pair("${envPrefix}LICENSEURL", "yapp.mavenPublishing.licenseUrl"),
-            Pair("${envPrefix}LICENSEDISTRIBUTION", "yapp.mavenPublishing.licenseDistribution"),
-            Pair("${envPrefix}LICENSECOMMENTS", "yapp.mavenPublishing.licenseComments"),
-            Pair(
-                "${envPrefix}DEVELOPER",
-                "yapp.mavenPublishing.developerId,yapp.mavenPublishing.developerName, yapp.mavenPublishing.developerEmail, org, orgu"
-            ),
-            Pair(
-                "${envPrefix}DEVELOPER.2",
-                "yapp.mavenPublishing.developerId2,yapp.mavenPublishing.developerName2, yapp.mavenPublishing.developerEmail2, org2, orgu2"
-            ),
-            Pair("${envPrefix}SCMURL", "yapp.mavenPublishing.scmUrl"),
-            Pair("${envPrefix}SCMCONNECTION", "yapp.mavenPublishing.scmConnection"),
-            Pair("${envPrefix}SCMDEVELOPERCONNECTION", "yapp.mavenPublishing.scmDeveloperConnection"),
-            Pair("${envPrefix}GROUPID", "$TLD.env"),
-            Pair("${envPrefix}VERSION", "0.0.4-SNAPSHOT"),
-            Pair("${envPrefix}ARTIFACTID", "kotlinlibrary"),
-            Pair("YAPP_SIGNING_ENABLED", "false"),
-            Pair("YAPP_SIGNING_SIGNSNAPSHOT", "false"),
-            Pair("YAPP_SIGNING_KEYID", "yapp.signing.keyId"),
-            Pair("YAPP_SIGNING_KEYSECRET", "yapp.signing.keySecret"),
-            Pair("YAPP_SIGNING_KEY", "yapp.signing.keyFile"),
-            Pair("YAPP_OSSRHUSER", "yapp.ossrhUser"),
-            Pair("YAPP_OSSRHPASSWORD", "yapp.ossrhPassword")
-        )
-    }
-
-    fun yappBasePlugin(
-        group: String = "$TLD.svt.oss",
-        version: String = "1.0.0-SNAPSHOT"
-    ) = """
+        fun yappPluginTestBaseBuildFile(
+            group: String = "$TLD.svt.oss",
+            version: String = "1.0.0-SNAPSHOT"
+        ) = """
 
 plugins {
     `maven-publish`
@@ -258,5 +279,6 @@ tasks.named<Wrapper>("wrapper") {
     distributionType = Wrapper.DistributionType.ALL
     gradleVersion = "7.2"
 }
-    """.trimIndent()
+        """.trimIndent()
+    }
 }

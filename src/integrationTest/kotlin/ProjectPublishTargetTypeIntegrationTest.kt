@@ -1,158 +1,161 @@
+import ConfigurationData.Companion.buildFileData
+import ConfigurationData.Companion.buildFileMavenPublishingSection
+import ConfigurationData.Companion.buildFileYappSection
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import kotlin.io.path.ExperimentalPathApi
+import se.svt.oss.gradle.yapp.publishingtarget.PublishingTargetType.MAVEN_CENTRAL
 
-@ExperimentalPathApi
 class ProjectPublishTargetTypeIntegrationTest : AbstractIntegrationTest() {
 
     @Test
     fun `a java library is identified correctly`() {
-        val pathConf = PathConf(javaLibProjectPath, yappPluginTmpDir())
-        copyTemplateBuildFile(pathConf)
+
+        val pathDict = PathDict(JAVALIB_PROJECTPATH)
+        copyBuildFileTemplate(pathDict)
 
         val group = "$TLD.$JAVALIB"
-        val version = "0.0.2"
+        val version = version()
 
         publishToTmp(
-            ConfigurationData.buildFileData(
+            buildFileData(
                 group,
                 version,
-                "",
+                buildFileYappSection(
+                    listOf(MAVEN_CENTRAL.lowercase()),
+                    buildFileMavenPublishingSection(group, version)
+                ),
                 plugin2 = """`java-library`""",
-                buildGradleFile = pathConf.buildFilePath
+                buildGradleFile = pathDict.buildFilePath
             ),
-            ConfigurationData.buildFileYappConfData(group, version),
-            pathConf = pathConf
+            pathDict = pathDict
         )
     }
 
     @Test
     fun `a java library having a snapshot version is identified correctly`() {
-        val pathConf = PathConf(javaLibProjectPath, yappPluginTmpDir())
-        copyTemplateBuildFile(pathConf)
+
+        val pathDict = PathDict(JAVALIB_PROJECTPATH)
+        copyBuildFileTemplate(pathDict)
 
         val group = "$TLD.$JAVALIB"
-        val version = "0.0.1-SNAPSHOT"
+        val version = version()
 
         publishToTmp(
-            ConfigurationData.buildFileData(
+            buildFileData(
                 group,
                 version,
+                buildFileYappSection(
+                    listOf(MAVEN_CENTRAL.lowercase()),
+                    buildFileMavenPublishingSection(group, version)
+                ),
                 "",
                 plugin2 = """`java-library`""",
-                buildGradleFile = pathConf.buildFilePath
+                buildGradleFile = pathDict.buildFilePath
             ),
-            ConfigurationData.buildFileYappConfData(group, version),
-            pathConf = pathConf
+            pathDict = pathDict
         )
     }
 
     @Test
     fun `a kotlin library is identified correctly`() {
-        val pathConf = PathConf(kotlinLibProjectPath, yappPluginTmpDir())
-        copyTemplateBuildFile(pathConf)
+        val pathDict = PathDict(KOTLINLIB_PROJECTPATH)
+        copyBuildFileTemplate(pathDict)
 
         val group = "$TLD.$KOTLINLIB"
-        val version = "0.0.1-SNAPSHOT"
+        val version = version()
 
         publishToTmp(
-            ConfigurationData.buildFileData(
-                group, version, "",
+            buildFileData(
+                group, version,
+                buildFileYappSection(
+                    listOf(MAVEN_CENTRAL.lowercase()),
+                    buildFileMavenPublishingSection(group, version)
+                ),
                 plugin2 = """kotlin("jvm") version "1.5.21"
                 | `java-library`""".trimMargin(),
-                buildGradleFile = pathConf.buildFilePath
+                buildGradleFile = pathDict.buildFilePath
             ),
 
-            ConfigurationData.buildFileYappConfData(group, version),
-            pathConf = pathConf
+            pathDict = pathDict
         )
     }
 
     @Test
     fun `a kotlin gradle plugin is identified correctly`() {
-        val pathConf = PathConf(kotlinGradlePluginProjectPath, yappPluginTmpDir())
-        copyTemplateBuildFile(pathConf)
+        val pathDict = PathDict(KOTLIN_GRADLEPLUG_PROJECTPATH)
+        copyBuildFileTemplate(pathDict)
 
         val group = "$TLD.$KOTLINGRADLEPLUG"
-        val version = "0.0.1-SNAPSHOT"
+        val version = version()
 
         publishToTmp(
-            ConfigurationData.buildFileData(
-                group, version, "",
+            buildFileData(
+                group, version,
+                buildFileYappSection(
+                    listOf(MAVEN_CENTRAL.lowercase()),
+                    buildFileMavenPublishingSection(group, version)
+                ),
                 plugin2 = """id("org.jetbrains.kotlin.jvm") version "1.5.31"
                 | `java-gradle-plugin`""".trimMargin(),
-                buildGradleFile = pathConf.buildFilePath
+                buildGradleFile = pathDict.buildFilePath
             ),
 
-            ConfigurationData.buildFileYappConfData(group, version),
-            propertiesData = """yapp.gradleplugin.id=$group""",
-            pathConf = pathConf
+            propertiesFileData = """yapp.gradleplugin.id=$group""",
+            pathDict = pathDict
         )
     }
 
     @Test
     fun `a java gradle plugin is identified correctly`() {
-        val pathConf = PathConf(javaGradlePluginProjectPath, yappPluginTmpDir())
-        copyTemplateBuildFile(pathConf)
+        val pathDict = PathDict(JAVA_GRADLEPLUG_PROJECTPATH)
+        copyBuildFileTemplate(pathDict)
 
         val group = "$TLD.$JAVAGRADLEPLUG"
-        val version = "0.0.1-SNAPSHOT"
+        val version = version()
 
         publishToTmp(
-            ConfigurationData.buildFileData(
+            buildFileData(
                 group,
                 version,
-                "",
+                buildFileYappSection(
+                    listOf(MAVEN_CENTRAL.lowercase()),
+                    buildFileMavenPublishingSection(group, version)
+                ),
                 plugin1 = "",
                 plugin2 = """`java-gradle-plugin`""".trimMargin(),
-                buildGradleFile = pathConf.buildFilePath
+                buildGradleFile = pathDict.buildFilePath
             ),
 
-            ConfigurationData.buildFileYappConfData(group, version),
-            propertiesData = """yapp.gradleplugin.id=$group""",
-            pathConf = pathConf
+            propertiesFileData = """yapp.gradleplugin.id=$group""",
+            pathDict = pathDict
         )
     }
 
     @Disabled
     fun `could not identify the project type`() {
-        val pathConf = PathConf(unknownLibraryProjectPath, yappPluginTmpDir())
-        copyTemplateBuildFile(pathConf)
+        val pathDict = PathDict(UNKNOWN_PROJECTPATH)
+        copyBuildFileTemplate(pathDict)
 
         val group = "$TLD.$UNKNOWN"
-        val version = "0.0.1-SNAPSHOT"
+        val version = version()
 
         assertThrows<IllegalStateException> {
             publishToTmp(
-                ConfigurationData.buildFileData(
+                buildFileData(
                     group,
                     version,
-                    "",
+                    buildFileYappSection(
+                        listOf(MAVEN_CENTRAL.lowercase()),
+                        buildFileMavenPublishingSection(group, version)
+                    ),
                     plugin1 = "",
                     plugin2 = "".trimMargin(),
-                    buildGradleFile = pathConf.buildFilePath
+                    buildGradleFile = pathDict.buildFilePath
                 ),
 
-                ConfigurationData.buildFileYappConfData(group, version),
-                pathConf = pathConf
+                pathDict = pathDict
             )
         }
     }
-
-    private fun gradlePluginBlock() = """
-
-
-
-
-gradlePlugin {
-    plugins {
-        create("simplePlugin") {
-            id = "org.gradle.sample.simple-plugin"
-            implementationClass = "org.gradle.sample.SimplePlugin"
-        }
-    }
-}
-
-    """
 }

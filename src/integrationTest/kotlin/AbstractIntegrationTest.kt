@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import ConfigurationData.Companion.yappPluginTestBaseBuildFile
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -19,65 +20,38 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
-import kotlin.io.path.ExperimentalPathApi
-import kotlin.io.path.appendText
 import kotlin.io.path.writeText
+import kotlin.random.Random
 
-@ExperimentalPathApi
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class AbstractIntegrationTest {
 
     open val buildFileTemplatePath: String = "/src/integrationTest/resources/projects/build.gradle.kts"
-
-    val kotlinLibProjectPath: String = "/src/integrationTest/resources/projects/kotlinlibrary"
-    val javaLibProjectPath: String = "/src/integrationTest/resources/projects/javalibrary"
-    val javaGradlePluginProjectPath: String = "/src/integrationTest/resources/projects/javagradleplugin"
-    val kotlinGradlePluginProjectPath: String = "/src/integrationTest/resources/projects/kotlingradleplugin"
-    val unknownLibraryProjectPath: String = "/src/integrationTest/resources/projects/unknown-library"
 
     lateinit var signingKey: String
 
     protected val pluginName = "gradle-yapp-publisher-plugin"
     protected val tmpdir: String = System.getProperty("java.io.tmpdir")
 
+    protected open var pathDict: PathDict = PathDict(JAVALIB_PROJECTPATH)
+
     @BeforeAll
     fun beforeAll() {
         publishYappPluginToTmp()
     }
 
-    private fun publishYappPluginToTmp() {
-
-        val pathConf = PathConf("", yappPluginTmpDir())
-
-        signingKey = resource("gpg/sec_signingkey_ascii_newlineliteral.asc").readText()
-
-        val fileArray = File("./").listFiles { file ->
-            !file.name.matches(Regex("""build|.gradle|docs|gradle|gradle|.idea|LICENSES|.reuse|.git|DEVELOPMENT.md|LICENSE"""))
-        }
-        fileArray.forEach {
-            println(it.name.toString())
-            println("${yappPluginTmpDir()}/${it.name}")
-        }
-
-        fileArray.forEach { it.copyRecursively(File("${yappPluginTmpDir()}/${it.name}")) }
-
-        publishToTmp(ConfigurationData.yappBasePlugin(), pathConf = pathConf)
-    }
-
-    fun publishToTmp(
+    protected fun publishToTmp(
         buildFileData: String,
-        buildFileAppendData: String = "",
-        propertiesData: String = "",
+        propertiesFileData: String = "",
         gradleTask: String = "publishToMavenLocal",
-        pathConf: PathConf
+        pathDict: PathDict
     ) {
 
-        pathConf.buildFilePath.writeText(buildFileData)
-        pathConf.buildFilePath.appendText(buildFileAppendData)
-        pathConf.propertyFilePath.toFile().writeText(propertiesData)
+        pathDict.buildFilePath.writeText(buildFileData)
+        pathDict.propertyFilePath.toFile().writeText(propertiesFileData)
 
         val buildResult = GradleRunner.create()
-            .withProjectDir(pathConf.projectPath.toFile())
+            .withProjectDir(pathDict.projectPath.toFile())
             .withArguments("-Dmaven.repo.local=$tmpdir", gradleTask)
             .withPluginClasspath()
             .forwardOutput()
@@ -86,36 +60,49 @@ abstract class AbstractIntegrationTest {
         assertEquals(TaskOutcome.SUCCESS, buildResult.task(":$gradleTask")!!.outcome)
     }
 
-    fun resource(resource: String): File = File(javaClass.classLoader.getResource(resource)!!.file)
+    protected fun resource(resource: String): File = File(javaClass.classLoader.getResource(resource)!!.file)
 
-    fun diff(resourcePom: File, generatedPom: File): Diff {
+    protected fun diff(referencePom: String, generatedPom: File): Diff {
 
-        val diff = DiffBuilder.compare(Input.fromFile(resourcePom)).withTest(Input.fromFile(generatedPom))
+        val diff = DiffBuilder
+            .compare(referencePom)
+            .withTest(Input.fromFile(generatedPom))
             .checkForSimilar()
             .ignoreWhitespace().build()
         println(diff.differences)
         return diff
     }
 
-    fun generatedPom(name: String, subdir: String, version: String, extension: String = "pom"): File = Paths.get(
-        tmpdir, TLD, subdir, name, version,
-        "$name-$version.$extension"
-    ).toFile()
+    protected fun publishedPomPath(
+        name: String,
+        group: String,
+        version: String,
+        extension: String = "pom"
+    ): File =
+        Paths.get(tmpdir, TLD, group, name, version, "$name-$version.$extension").toFile()
 
-    fun generatedSignatures(name: String = pluginName, subdir: String, version: String) = Paths.get(
-        tmpdir, TLD, subdir, name, version
-    ).toFile().walk().filter { it.extension == "asc" }.map { it.name }.toList().sorted()
+    protected fun publishedSignatures(
+        name: String,
+        group: String,
+        version: String
+    ) =
+        Paths.get(tmpdir, TLD, group, name, version)
+            .toFile().walk()
+            .filter { it.extension == "asc" }
+            .map { it.name }
+            .toList()
+            .sorted()
 
-    fun xpathFieldDiff(
+    protected fun xpathFieldDiff(
         query: String,
         expectedValue: String,
-        subdir: String,
+        group: String,
         version: String,
         name: String
     ) {
         val xpath: XPathEngine = JAXPXPathEngine()
         xpath.setNamespaceContext(mapOf(Pair("m", "http://maven.apache.org/POM/4.0.0")))
-        val nodes = xpath.selectNodes(query, Input.fromFile(generatedPom(name, subdir, version)).build())
+        val nodes = xpath.selectNodes(query, Input.fromFile(publishedPomPath(name, group, version)).build())
 
         assertTrue(nodes.count() > 0)
 
@@ -124,18 +111,44 @@ abstract class AbstractIntegrationTest {
         }
     }
 
-    fun copyTemplateBuildFile(pathConf: PathConf) {
+    protected fun copyBuildFileTemplate(pathDict: PathDict) =
         Files.copy(
             Paths.get(yappPluginTmpDir(), buildFileTemplatePath),
-            Paths.get(yappPluginTmpDir(), pathConf.projectDirPath, "build.gradle.kts"), StandardCopyOption.REPLACE_EXISTING
+            Paths.get(yappPluginTmpDir(), pathDict.projectDirPath, "build.gradle.kts"),
+            StandardCopyOption.REPLACE_EXISTING
         )
+
+    private fun publishYappPluginToTmp() {
+
+        val pathDict = PathDict("")
+
+        signingKey = resource("gpg/sec_signingkey_ascii_newlineliteral.asc").readText()
+
+        copyProjectFilesToTestTmpDir()
+
+        publishToTmp(yappPluginTestBaseBuildFile(), pathDict = pathDict)
+    }
+
+    private fun copyProjectFilesToTestTmpDir() {
+        val projectFiles = File("./").listFiles { file ->
+            !file.name.matches(Regex("""build|.gradle|docs|gradle|gradle|.idea|LICENSES|.reuse|.git|DEVELOPMENT.md|LICENSE"""))
+        }
+        /*fileArray.forEach {
+            println(it.name.toString())
+            println("${yappPluginTmpDir()}/${it.name}")
+        }*/
+
+        projectFiles.forEach {
+            it.copyRecursively(File("${yappPluginTmpDir()}/${it.name}"))
+        }
     }
 
     companion object {
         @JvmStatic
         @TempDir
-        lateinit var testDirPath: Path
+        var testDirPath: Path? = null
 
+        // group test categories
         const val TLD: String = "se"
         const val SIGNING: String = "signing"
         const val ORDER: String = "order"
@@ -144,19 +157,29 @@ abstract class AbstractIntegrationTest {
         const val ARTIFACTS: String = "artifacts"
         const val ENV: String = "env"
 
-        const val JAVALIB: String = "javalib"
-        const val KOTLINLIB: String = "kotlinlib"
-        const val JAVAGRADLEPLUG: String = "javagradleplug"
-        const val KOTLINGRADLEPLUG: String = "kotlingradleplug"
+        // Test projects naming
+        const val JAVALIB: String = "javalibrary"
+        const val KOTLINLIB: String = "kotlinlibrary"
+        const val JAVAGRADLEPLUG: String = "javagradleplugin"
+        const val KOTLINGRADLEPLUG: String = "kotlingradleplugin"
         const val UNKNOWN: String = "unknown"
 
-        const val MAVEN_CENTRAL = "maven_central"
+        private const val TESTPROJECT_BASE = "src/integrationTest/resources/projects"
+        const val KOTLINLIB_PROJECTPATH: String = "$TESTPROJECT_BASE/$KOTLINLIB"
+        const val JAVALIB_PROJECTPATH: String = "$TESTPROJECT_BASE/$JAVALIB"
+        const val JAVA_GRADLEPLUG_PROJECTPATH: String = "$TESTPROJECT_BASE/$JAVAGRADLEPLUG"
+        const val KOTLIN_GRADLEPLUG_PROJECTPATH: String = "$TESTPROJECT_BASE/$KOTLINGRADLEPLUG"
+        const val UNKNOWN_PROJECTPATH: String = "$TESTPROJECT_BASE/$UNKNOWN"
+
+        fun yappPluginTmpDir() = "$testDirPath/yappinstall"
     }
 
-    fun yappPluginTmpDir() = "$testDirPath/yappinstall"
+    fun version() = "0.0.1-alpha.${Random.nextInt()}"
 }
 
-data class PathConf(val projectDirPath: String, private val rootPath: String) {
+data class PathDict(val projectDirPath: String) {
+
+    private val rootPath: String = AbstractIntegrationTest.yappPluginTmpDir()
 
     val projectPath = Paths.get(rootPath, projectDirPath)
     val settingsFilePath = Paths.get(rootPath, projectDirPath, "settings.gradle.kts")

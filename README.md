@@ -399,3 +399,9 @@ The Gradle Yapp Publisher Plugin is released under the:
 ## Primary Maintainer
 
 Josef Andersson https://github.com/jandersson-svt
+
+## Creators
+
+Josef Andersson https://github.com/jandersson-svt
+Rickard Andersson https://github.com/rickard-svti 
+

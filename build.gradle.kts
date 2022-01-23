@@ -1,3 +1,5 @@
+import se.svt.oss.gradle.yapp.extension.Developer
+
 plugins {
     //`maven-publish`
     `java-gradle-plugin`
@@ -19,6 +21,7 @@ group = "se.svt.oss"
 version = "0.1.33"
 description = "Yet another plugin that manages publishing for Gradle projects"
 
+
 repositories {
     gradlePluginPortal()
     mavenLocal()
@@ -39,6 +42,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
     testImplementation("uk.org.webcompere:system-stubs-jupiter:1.2.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.1")
 }
 
 tasks {
@@ -48,7 +52,6 @@ tasks {
 }
 
 yapp {
-
 }
 /* pluginBundle {
     website = "https://github.com/svt/gradle-yapp-publisher-plugin"

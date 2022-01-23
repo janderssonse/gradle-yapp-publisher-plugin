@@ -3,48 +3,51 @@ import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import se.svt.oss.gradle.yapp.publishingtarget.PublishingTargetType.MAVEN_CENTRAL
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
-import kotlin.io.path.ExperimentalPathApi
 
-@ExperimentalPathApi
 class SourceDocumentationArtifactIntegrationTest : AbstractIntegrationTest() {
-
-    lateinit var pathConf: PathConf
 
     @BeforeEach
     fun before() {
-        pathConf = PathConf(javaLibProjectPath, yappPluginTmpDir())
-        copyTemplateBuildFile(pathConf)
+        pathDict = PathDict(JAVALIB_PROJECTPATH)
+        copyBuildFileTemplate(pathDict)
     }
 
     @Test
     fun `source artifact and documentation artifacts are published by default`() {
         val group = "$TLD.$ARTIFACTS"
-        val version = "0.0.1-SNAPSHOT"
+        val version = version()
 
-        val artifacts = artifacts(version, pathConf)
+        val artifacts = artifacts(version, pathDict)
 
         publishToTmp(
-            ConfigurationData.buildFileData(group, version, buildGradleFile = pathConf.buildFilePath),
-            ConfigurationData.buildFileYappConfData(group, version),
-            pathConf = pathConf
+            ConfigurationData.buildFileData(
+                group, version,
+                ConfigurationData.buildFileYappSection(
+                    listOf(MAVEN_CENTRAL.lowercase()),
+                    mavenpublishingsection = ConfigurationData.buildFileMavenPublishingSection(group, version)
+                ),
+                buildGradleFile = pathDict.buildFilePath
+            ),
+            pathDict = pathDict
         )
 
         assertIterableEquals(
-            generatedArtifacts(pathConf.libraryDirName, ARTIFACTS, version)
+            generatedArtifacts(pathDict.libraryDirName, ARTIFACTS, version)
                 .map { it.name }.toList().sorted(),
             artifacts
         )
 
-        val mainPath = Paths.get(tmpdir, TLD, ARTIFACTS, pathConf.libraryDirName, version)
+        val mainPath = Paths.get(tmpdir, TLD, ARTIFACTS, pathDict.libraryDirName, version)
 
         val htmlFiles =
-            readJar(Paths.get(mainPath.toString(), "${pathConf.libraryDirName}-$version-javadoc.jar"), ".html")
+            readJar(Paths.get(mainPath.toString(), "${pathDict.libraryDirName}-$version-javadoc.jar"), ".html")
         val sourceFiles =
-            readJar(Paths.get(mainPath.toString(), "${pathConf.libraryDirName}-$version-sources.jar"), ".java")
+            readJar(Paths.get(mainPath.toString(), "${pathDict.libraryDirName}-$version-sources.jar"), ".java")
 
         assertTrue(htmlFiles.isNotEmpty())
         assertTrue(sourceFiles.isNotEmpty())
@@ -53,33 +56,37 @@ class SourceDocumentationArtifactIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `empty source artifact and empty documentation artifacts are published`() {
         val group = "$TLD.$ARTIFACTS"
-        val version = "0.0.2-SNAPSHOT"
+        val version = version()
 
-        val artifacts = artifacts(version, pathConf)
+        val artifacts = artifacts(version, pathDict)
 
         publishToTmp(
-            ConfigurationData.buildFileData(group, version, buildGradleFile = pathConf.buildFilePath),
-            ConfigurationData.buildFileYappConfData(
-                group,
-                version,
-                emptyDocArtifact = true,
-                emptySourceArtifact = true
+            ConfigurationData.buildFileData(
+                group, version,
+
+                ConfigurationData.buildFileYappSection(
+                    listOf(MAVEN_CENTRAL.lowercase()),
+                    mavenpublishingsection = ConfigurationData.buildFileMavenPublishingSection(group, version),
+                    emptyDocArtifact = true,
+                    emptySourceArtifact = true
+                ),
+                buildGradleFile = pathDict.buildFilePath
             ),
-            pathConf = pathConf
+            pathDict = pathDict
         )
 
-        val mainPath = Paths.get(tmpdir, TLD, ARTIFACTS, pathConf.libraryDirName, version)
+        val mainPath = Paths.get(tmpdir, TLD, ARTIFACTS, pathDict.libraryDirName, version)
 
         assertIterableEquals(
-            generatedArtifacts(pathConf.libraryDirName, ARTIFACTS, version)
+            generatedArtifacts(pathDict.libraryDirName, ARTIFACTS, version)
                 .map { it.name }.toList().sorted(),
             artifacts
         )
 
         val htmlFiles =
-            readJar(Paths.get(mainPath.toString(), "${pathConf.libraryDirName}-$version-javadoc.jar"), ".html")
+            readJar(Paths.get(mainPath.toString(), "${pathDict.libraryDirName}-$version-javadoc.jar"), ".html")
         val sourceFiles =
-            readJar(Paths.get(mainPath.toString(), "${pathConf.libraryDirName}-$version-sources.jar"), ".java")
+            readJar(Paths.get(mainPath.toString(), "${pathDict.libraryDirName}-$version-sources.jar"), ".java")
 
         assertTrue(htmlFiles.isEmpty())
         assertTrue(sourceFiles.isEmpty())
@@ -88,23 +95,27 @@ class SourceDocumentationArtifactIntegrationTest : AbstractIntegrationTest() {
     @Test
     fun `no source artifact and no documentation artifacts are published`() {
         val group = "$TLD.${ARTIFACTS}Empty"
-        val version = "0.0.3-SNAPSHOT"
+        val version = version()
 
         publishToTmp(
-            ConfigurationData.buildFileData(group, version, buildGradleFile = pathConf.buildFilePath),
-            ConfigurationData.buildFileYappConfData(
-                group,
-                version,
-                withDocArtifact = false,
-                withSourceArtifact = false
+            ConfigurationData.buildFileData(
+                group, version,
+                ConfigurationData.buildFileYappSection(
+                    listOf(MAVEN_CENTRAL.lowercase()),
+                    mavenpublishingsection = ConfigurationData.buildFileMavenPublishingSection(group, version),
+                    withDocArtifact = false,
+                    withSourceArtifact = false
+                ),
+
+                buildGradleFile = pathDict.buildFilePath
             ),
-            pathConf = pathConf
+            pathDict = pathDict
         )
 
         assertIterableEquals(
-            generatedArtifacts(pathConf.libraryDirName, ARTIFACTS + "Empty", version)
+            generatedArtifacts(pathDict.libraryDirName, ARTIFACTS + "Empty", version)
                 .map { it.name }.toList().sorted(),
-            listOf("${pathConf.libraryDirName}-$version.jar")
+            listOf("${pathDict.libraryDirName}-$version.jar")
         )
     }
 
@@ -117,9 +128,9 @@ class SourceDocumentationArtifactIntegrationTest : AbstractIntegrationTest() {
         tmpdir, TLD, subdir, name, version
     ).toFile().walk().filter { it.extension == "jar" }
 
-    private fun artifacts(version: String, pathConf: PathConf): List<String> = listOf(
-        "${pathConf.libraryDirName}-$version-javadoc.jar",
-        "${pathConf.libraryDirName}-$version-sources.jar",
-        "${pathConf.libraryDirName}-$version.jar"
+    private fun artifacts(version: String, pathDict: PathDict): List<String> = listOf(
+        "${pathDict.libraryDirName}-$version-javadoc.jar",
+        "${pathDict.libraryDirName}-$version-sources.jar",
+        "${pathDict.libraryDirName}-$version.jar"
     ).sorted()
 }

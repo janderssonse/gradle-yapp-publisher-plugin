@@ -30,4 +30,6 @@ enum class PublishingTargetType {
     };
 
     abstract fun publishTarget(project: Project): BasePublishTarget
+
+    fun lowercase() = name.lowercase()
 }
