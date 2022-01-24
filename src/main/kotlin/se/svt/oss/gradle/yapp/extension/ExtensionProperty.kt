@@ -6,6 +6,8 @@ import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import se.svt.oss.gradle.yapp.publishingtarget.BasePublishTarget
 import se.svt.oss.gradle.yapp.publishingtarget.PublishingTargetType
+import se.svt.oss.gradle.yapp.validation.ValueValidator
+import se.svt.oss.gradle.yapp.validation.getValidator
 import se.svt.oss.gradle.yapp.yappExtension
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
@@ -67,6 +69,7 @@ private class AnnotationWrapper<T : Any>(
     val propertyName: String,
     val annotation: ExtensionProperty?,
     val extractor: ExtensionPropertyExtractor?,
+    val validator: ValueValidator<Any?>?,
     val clazz: KClass<T>,
     val list: Boolean = false,
 )
@@ -93,6 +96,7 @@ class PluginExtensionProperties(
         mandatory: Boolean = false,
         extraDescription: String = "",
         parser: ((String) -> Any)? = null,
+        validator: ValueValidator<Any?>? = null
     ) {
         properties.add(
             ExtensionProperty(
@@ -109,6 +113,7 @@ class PluginExtensionProperties(
                 mandatory = mandatory,
                 extraDescription = extraDescription,
                 parser = parser,
+                validator = validator,
             )
         )
     }
@@ -153,6 +158,7 @@ class PluginExtensionProperties(
         val mandatory: Boolean = false,
         val extraDescription: String = "",
         val parser: ((String) -> Any)? = null,
+        val validator: ValueValidator<Any?>? = null,
     ) {
         val value: String = value
             // Overrides value to handle formatters (secrets)
@@ -179,7 +185,13 @@ class PluginExtensionProperties(
             } else {
                 "     "
             }
-            println("|%5s|%5s|%-30s|%s".format(inProject, inEnv, this.name, this.value))
+            val valid = validator?.validate(this.value) ?: true
+            val value: String = if (!valid) {
+                "${this.value} (Invalid: ${validator!!.message()})"
+            } else {
+                this.value
+            }
+            println("|%5s|%5s|%-30s|%s".format(inProject, inEnv, this.name, value))
         }
     }
 }
@@ -250,6 +262,7 @@ private fun <T : Any> fetchExtensionPropertiesAnnotations(
                 propertyName = p.name,
                 annotation = p.findAnnotation(),
                 extractor = p.findAnnotation(),
+                validator = p.getValidator(),
                 clazz = clazz,
             )
         }
@@ -299,6 +312,7 @@ private fun buildExtensionProperties(
                     mandatory = propertyAnnotation.mandatory,
                     extraDescription = valueWithType.fourth,
                     parser = valueWithType.fifth,
+                    validator = annotationWrapper.validator,
                 )
             }
         }

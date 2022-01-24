@@ -4,8 +4,13 @@ import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import se.svt.oss.gradle.yapp.validation.ExtensionRule
+import se.svt.oss.gradle.yapp.validation.StringFormatValidator
 import javax.inject.Inject
 
+@ExtensionRule(
+    validTogether = ["key", "keySecret"]
+)
 open class GradlePluginPublishingExtension @Inject constructor(project: Project, objects: ObjectFactory) :
     PropertyHandler(project, objects, "yapp.gradleplugin.", "YAPP_GRADLEPLUGIN_") {
 
@@ -27,6 +32,7 @@ open class GradlePluginPublishingExtension @Inject constructor(project: Project,
         description = "Url to the projects repository",
         example = "https://github.com/johndoe/GradlePlugins"
     )
+    @StringFormatValidator("^https.*")
     var vcsUrl: Property<String> = propertyString("vcs")
 
     @ExtensionProperty(

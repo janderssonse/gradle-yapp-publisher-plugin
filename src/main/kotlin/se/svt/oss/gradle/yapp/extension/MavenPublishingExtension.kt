@@ -3,6 +3,7 @@ package se.svt.oss.gradle.yapp.extension
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
+import se.svt.oss.gradle.yapp.validation.StringFormatValidator
 import javax.inject.Inject
 
 open class MavenPublishingExtension @Inject constructor(
@@ -25,6 +26,7 @@ open class MavenPublishingExtension @Inject constructor(
         description = "The unique name for your component",
         example = "my-super-lib"
     )
+    @StringFormatValidator(format = "[A-Za-z0-9_\\-.]+")
     open var artifactId: Property<String> = propertyString("artifactId")
 
     @ExtensionProperty(
@@ -32,6 +34,7 @@ open class MavenPublishingExtension @Inject constructor(
         description = "The top level namespace level for your project starting with the reverse domain name",
         example = "com.acme"
     )
+    @StringFormatValidator(format = "[A-Za-z0-9_\\-.]+")
     open var groupId: Property<String> = propertyString("groupId")
 
     @ExtensionProperty(

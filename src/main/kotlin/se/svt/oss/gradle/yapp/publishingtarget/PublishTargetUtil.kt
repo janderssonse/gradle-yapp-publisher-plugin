@@ -4,6 +4,7 @@ import GradlePluginPortal
 import org.gradle.api.Project
 import se.svt.oss.gradle.yapp.config.projectType
 import se.svt.oss.gradle.yapp.extension.PluginExtensionProperties
+import se.svt.oss.gradle.yapp.extension.PropertyHandler
 import se.svt.oss.gradle.yapp.extension.YappPublisherExtension
 import se.svt.oss.gradle.yapp.extension.fetchPluginExtensionProperties
 import se.svt.oss.gradle.yapp.projecttype.GradleJavaPlugin
@@ -11,6 +12,7 @@ import se.svt.oss.gradle.yapp.projecttype.GradleKotlinPlugin
 import se.svt.oss.gradle.yapp.projecttype.JavaLibrary
 import se.svt.oss.gradle.yapp.projecttype.JavaProject
 import se.svt.oss.gradle.yapp.projecttype.KotlinLibrary
+import se.svt.oss.gradle.yapp.yappExtension
 
 internal object PublishTargetUtil {
     fun identifyPublishTarget(
@@ -48,6 +50,29 @@ internal object PublishTargetUtil {
     fun fetchPluginExtensionsPropertiesForTarget(target: BasePublishTarget): PluginExtensionProperties {
         return fetchPluginExtensionProperties(target)
     }
+
+    fun fetchPluginExtensionForTarget(target: BasePublishTarget): PropertyHandler? {
+        when (target.publishingTargetType) {
+            PublishingTargetType.ARTIFACTORY -> {
+                return target.project.yappExtension().artifactoryPublishing
+            }
+            PublishingTargetType.GRADLE_PORTAL -> {
+                return target.project.yappExtension().gradlePortalPublishing
+            }
+            PublishingTargetType.MAVEN_CENTRAL -> {
+                return target.project.yappExtension().mavenPublishing
+            }
+            PublishingTargetType.GITLAB -> {
+                return target.project.yappExtension().gitLab
+            }
+            PublishingTargetType.GITHUB -> {
+                return target.project.yappExtension().gitHub
+            }
+            else ->
+                return null
+        }
+    }
 }
 fun Project.publishingTargets(): List<BasePublishTarget> = PublishTargetUtil.identifyPublishTarget(this)
 fun fetchPluginExtensionsPropertiesForTarget(target: BasePublishTarget): PluginExtensionProperties = PublishTargetUtil.fetchPluginExtensionsPropertiesForTarget(target)
+fun fetchPluginExtensionsForTarget(target: BasePublishTarget): PropertyHandler = PublishTargetUtil.fetchPluginExtensionForTarget(target)!!

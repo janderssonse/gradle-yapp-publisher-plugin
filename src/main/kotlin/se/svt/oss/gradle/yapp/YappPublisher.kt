@@ -12,6 +12,7 @@ import se.svt.oss.gradle.yapp.publishingtarget.publishingTargets
 import se.svt.oss.gradle.yapp.task.CreateConfigurationTemplateTask
 import se.svt.oss.gradle.yapp.task.PublishArtifactTask
 import se.svt.oss.gradle.yapp.task.PublishArtifactToLocalRepoTask
+import se.svt.oss.gradle.yapp.task.ValidateConfigurationTask
 import se.svt.oss.gradle.yapp.task.YappConfigurationTask
 
 class YappPublisher : Plugin<Project> {
@@ -65,6 +66,11 @@ class YappPublisher : Plugin<Project> {
         project.tasks.register(
             "createConfigurationTemplate",
             CreateConfigurationTemplateTask::class.java
+        )
+
+        project.tasks.register(
+            "validateConfiguration",
+            ValidateConfigurationTask::class.java
         )
     }
 
