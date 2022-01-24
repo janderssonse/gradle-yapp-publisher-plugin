@@ -4,12 +4,13 @@
 
 root = true
 
-
 [*]
-
 # Change these settings to your own preference
+# The default settings was taken from the kotlin style guide, https://github.com/Kotlin/kotlin-style-guide/issues/38
 indent_style = space
 indent_size = 4
+tab_width = 4
+max_line_length = 120
 
 # We recommend you to keep these unchanged
 end_of_line = lf
@@ -17,5 +18,9 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-[*.md]
+[*.{kt,kts}]
+#https://github.com/editorconfig/editorconfig/issues/412
+ij_continuation_indent_size = 8
+
+[{*.md,*.adoc}]
 trim_trailing_whitespace = false

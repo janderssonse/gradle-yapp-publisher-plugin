@@ -303,11 +303,13 @@ private fun buildExtensionProperties(
                     value = valueWithType.first,
                     valueType = valueWithType.second,
                     collectionType = valueWithType.third,
-                    defaultValue = if (propertyAnnotation.defaultValue == NULL_VALUE) null else propertyAnnotation.defaultValue,
+                    defaultValue = if (propertyAnnotation.defaultValue == NULL_VALUE) null
+                    else propertyAnnotation.defaultValue,
                     formatter = formatter,
                     inProject = inProject,
                     inEnv = inEnv,
-                    description = if (propertyAnnotation.description == NULL_VALUE) null else propertyAnnotation.description,
+                    description = if (propertyAnnotation.description == NULL_VALUE) null
+                    else propertyAnnotation.description,
                     example = if (propertyAnnotation.example == NULL_VALUE) null else propertyAnnotation.example,
                     mandatory = propertyAnnotation.mandatory,
                     extraDescription = valueWithType.fourth,
@@ -333,7 +335,9 @@ data class ValueObject<out A, out B, out C, out D, out E>(
 private fun getValueAsString(
     annotationWrapper: AnnotationWrapper<*>,
     extension: PropertyHandler
-): ValueObject<String, PluginExtensionProperties.ValueType, PluginExtensionProperties.ExtensionPropertyType, String, ((String) -> Any)?> {
+): ValueObject<String, PluginExtensionProperties.ValueType,
+    PluginExtensionProperties.ExtensionPropertyType, String, ((String) -> Any)?> {
+
     var value = annotationWrapper.clazz.java.kotlin.memberProperties
         .first { it.name == annotationWrapper.propertyName }
         .getter.call(extension)

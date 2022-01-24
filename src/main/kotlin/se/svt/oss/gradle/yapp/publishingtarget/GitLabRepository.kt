@@ -21,8 +21,15 @@ internal class GitLabRepository(
 
     private fun gitLabUri(): URI {
         return when (project.yappExtension().gitLab.endpointLevel.get()) {
-            "project" -> URI("${project.yappExtension().gitLab.host.get()}/api/v4/projects/${project.yappExtension().gitLab.gitlabProjectId.get()}/packages/maven")
-            "group" -> URI("${project.yappExtension().gitLab.host.get()}/api/v4/groups/${project.yappExtension().gitLab.gitlabGroupId.get()}/-/packages/maven")
+            "project" -> URI(
+                "${project.yappExtension().gitLab.host.get()}" +
+                    "/api/v4/projects/${project.yappExtension().gitLab.gitlabProjectId.get()}/packages/maven"
+            )
+
+            "group" -> URI(
+                "${project.yappExtension().gitLab.host.get()}" +
+                    "/api/v4/groups/${project.yappExtension().gitLab.gitlabGroupId.get()}/-/packages/maven"
+            )
             else -> {
                 throw IllegalArgumentException("Submit at valid endpoint level - project, group")
             }

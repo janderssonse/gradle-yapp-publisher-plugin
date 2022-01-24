@@ -1,8 +1,8 @@
 import se.svt.oss.gradle.yapp.extension.Developer
 
 plugins {
-    {plugin1}
-    {plugin2}
+    _plugin1_
+    _plugin2_
     id("se.svt.oss.gradle-yapp-publisher-plugin") version "1.0.0-SNAPSHOT"
 }
 
@@ -14,5 +14,5 @@ repositories {
     mavenCentral()
 }
 
-{yappConf}
+_yappConf_
 

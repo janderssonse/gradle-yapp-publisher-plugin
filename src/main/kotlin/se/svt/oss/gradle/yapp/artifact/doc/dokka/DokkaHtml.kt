@@ -13,6 +13,7 @@ open class DokkaHtml :
         dependsOn(dokkaHtml)
         from(dokkaHtml)
     }
+
     internal companion object {
         internal fun doc(task: String, project: Project): TaskProvider<*> {
             return project.tasks.register("${task}Gen", DokkaHtml::class.java)

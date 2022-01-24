@@ -33,7 +33,6 @@ Technically, this is done by supplying the `-s`/`--signoff` flag to git when com
 Optionally, you can also sign the commit with `-S` which also gives your commit a nice verified button on GitHub, but, it requires that you have a GPG keypair set up.
 For mor information, see https://docs.github.com/en/github/authenticating-to-github/signing-commits[Sign commit on GitHub with GPG key]
 
-
 `$ git commit -s -S -m "add fix for the bug"`
 
 For the difference in signoff and signing, see

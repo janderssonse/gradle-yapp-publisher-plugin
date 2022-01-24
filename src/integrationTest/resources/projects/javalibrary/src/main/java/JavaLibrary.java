@@ -1,4 +1,3 @@
-
 public class JavaLibrary {
     public boolean someLibraryMethod() {
         return true;

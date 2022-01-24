@@ -46,7 +46,7 @@ open class MavenPublishingExtension @Inject constructor(
 
     @ExtensionProperty(
         name = "name",
-        description = "Human readable description of the project. A common practice is to use groupId:project.artifactId",
+        description = "Human readable description of the project. Common practice is to use groupId:project.artifactId",
         example = "com.acme.my-super-lib"
     )
     var name: Property<String> = propertyString("name")

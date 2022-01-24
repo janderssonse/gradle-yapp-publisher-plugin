@@ -23,9 +23,9 @@ class ConfigurationData {
             return buildGradleFile.readText()
                 .replace("{group}", group)
                 .replace("{version}", version)
-                .replace("{yappConf}", yappConf)
-                .replace("{plugin1}", plugin1)
-                .replace("{plugin2}", plugin2)
+                .replace("_yappConf_", yappConf)
+                .replace("_plugin1_", plugin1)
+                .replace("_plugin2_", plugin2)
         }
 
         fun propertiesFileData(name: String = pluginName, group: String, version: String) = """
@@ -175,11 +175,13 @@ yapp {
                 Pair("${envPrefix}LICENSECOMMENTS", "yapp.mavenPublishing.licenseComments"),
                 Pair(
                     "${envPrefix}DEVELOPER",
-                    "yapp.mavenPublishing.developerId,yapp.mavenPublishing.developerName, yapp.mavenPublishing.developerEmail, org, orgu"
+                    "yapp.mavenPublishing.developerId,yapp.mavenPublishing.developerName, " +
+                        "yapp.mavenPublishing.developerEmail, org, orgu"
                 ),
                 Pair(
                     "${envPrefix}DEVELOPER.2",
-                    "yapp.mavenPublishing.developerId2,yapp.mavenPublishing.developerName2, yapp.mavenPublishing.developerEmail2, org2, orgu2"
+                    "yapp.mavenPublishing.developerId2,yapp.mavenPublishing.developerName2," +
+                        " yapp.mavenPublishing.developerEmail2, org2, orgu2"
                 ),
                 Pair("${envPrefix}SCMURL", "yapp.mavenPublishing.scmUrl"),
                 Pair("${envPrefix}SCMCONNECTION", "yapp.mavenPublishing.scmConnection"),

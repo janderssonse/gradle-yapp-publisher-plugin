@@ -63,7 +63,10 @@ abstract class CreateConfigurationTemplateTask @Inject constructor(
         }
 
         if (!getAvailableFormats().contains(format)) {
-            throw GradleException("Not a valid format. Available formats are ${getAvailableFormats().joinToString(",")}")
+            throw GradleException(
+                "Not a valid format. Available formats are ${getAvailableFormats()
+                    .joinToString(",")}"
+            )
         }
 
         sendOutput(
@@ -81,7 +84,8 @@ abstract class CreateConfigurationTemplateTask @Inject constructor(
                 StyledTextOutputEvent.EOL,
                 StyledTextOutputEvent.Span(
                     Style.Identifier,
-                    "At the end all configuration will be written to console as ${if (format == "properties") "properties" else "environment variables"}."
+                    "At the end all configuration will be written to console as ${if (format == "properties")
+                        "properties" else "environment variables"}."
                 ),
                 StyledTextOutputEvent.EOL
             )
@@ -165,7 +169,13 @@ abstract class CreateConfigurationTemplateTask @Inject constructor(
             possiblePublishTargets.remove(targetType)
         }
         if (format == "properties") {
-            println("yapp.targets=${groups.filter { g -> g.target != null }.map { g -> g.target }.joinToString(",")}")
+            println(
+                "yapp.targets=${groups
+                    .filter { g -> g.target != null }
+                    .map { g -> g.target }
+                    .joinToString(",")}"
+            )
+
             groups.forEach { group ->
                 run {
                     println("# ${group.name}")
@@ -173,7 +183,13 @@ abstract class CreateConfigurationTemplateTask @Inject constructor(
                 }
             }
         } else {
-            println("YAPP_TARGETS=${groups.filter { g -> g.target != null }.map { g -> g.target }.joinToString(",")}")
+            println(
+                "YAPP_TARGETS=${groups
+                    .filter { g -> g.target != null }
+                    .map { g -> g.target }
+                    .joinToString(",")}"
+            )
+
             groups.forEach { group ->
                 run {
                     println("# ${group.name}")

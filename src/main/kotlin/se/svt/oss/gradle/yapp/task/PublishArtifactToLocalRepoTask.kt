@@ -8,11 +8,15 @@ abstract class PublishArtifactToLocalRepoTask : DefaultTask() {
     init {
 
         group = "yapp publisher"
-        description = "Publish ${project.name} as a ${project.projectType().javaClass.simpleName} to the local repository"
+        description =
+            "Publish ${project.name} as a ${project.projectType().javaClass.simpleName} to the local repository"
         dependsOn(project.tasks.getByName("publishToMavenLocal"))
         doLast {
 
-            println("Publish ${project.name} as a ${project.projectType().javaClass.simpleName} to the local repository")
+            println(
+                "Publish ${project.name} as a " +
+                    "${project.projectType().javaClass.simpleName} to the local repository"
+            )
         }
     }
 

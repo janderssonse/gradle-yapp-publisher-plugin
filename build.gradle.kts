@@ -1,5 +1,3 @@
-import se.svt.oss.gradle.yapp.extension.Developer
-
 plugins {
     //`maven-publish`
     `java-gradle-plugin`
@@ -10,7 +8,7 @@ plugins {
     id("se.ascp.gradle.gradle-versions-filter") version "0.1.10"
     id("org.jmailen.kotlinter") version "3.7.0"
     id("org.owasp.dependencycheck") version "6.5.0.1"
-   // id("com.jfrog.artifactory") version "4.26.1"
+    // id("com.jfrog.artifactory") version "4.26.1"
     //id("com.gradle.plugin-publish") version "0.18.0"
     id("pl.allegro.tech.build.axion-release") version "1.13.6"
     id("se.svt.oss.gradle-yapp-publisher-plugin") version "0.1.33"

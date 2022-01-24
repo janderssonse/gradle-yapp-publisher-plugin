@@ -26,7 +26,7 @@ import kotlin.random.Random
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class AbstractIntegrationTest {
 
-    open val buildFileTemplatePath: String = "/src/integrationTest/resources/projects/build.gradle.kts"
+    open val buildFileTemplatePath: String = "/src/integrationTest/resources/projects/build_template_kts"
 
     lateinit var signingKey: String
 
@@ -131,7 +131,11 @@ abstract class AbstractIntegrationTest {
 
     private fun copyProjectFilesToTestTmpDir() {
         val projectFiles = File("./").listFiles { file ->
-            !file.name.matches(Regex("""build|.gradle|docs|gradle|gradle|.idea|LICENSES|.reuse|.git|DEVELOPMENT.md|LICENSE"""))
+            !file.name.matches(
+                Regex(
+                    """build|.gradle|docs|gradle|gradle|.idea|LICENSES|.reuse|.git|DEVELOPMENT.md|LICENSE"""
+                )
+            )
         }
         /*fileArray.forEach {
             println(it.name.toString())

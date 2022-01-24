@@ -29,5 +29,6 @@ internal open class MavenCentralRepository(
         return RepositoryConfiguration(uri, snapShotUri, "MavenCentral", credential)
     }
 
-    private fun getUrlPrefix(): String = if (project.yappExtension().mavenPublishing.mavenCentralLegacyUrl.get()) "" else "s01."
+    private fun getUrlPrefix(): String =
+        if (project.yappExtension().mavenPublishing.mavenCentralLegacyUrl.get()) "" else "s01."
 }

@@ -130,7 +130,9 @@ class MavenPublishingPlugin(project: Project) : BasePlugin(project) {
         repositoryConf: RepositoryConfiguration
     ) {
         println(publishTargetType)
-        if (publishTargetType == PublishingTargetType.MAVEN_CENTRAL && ext.mavenPublishing.directReleaseToMavenCentral.get()) {
+        if (publishTargetType == PublishingTargetType.MAVEN_CENTRAL &&
+            ext.mavenPublishing.directReleaseToMavenCentral.get()
+        ) {
             project.plugins.apply(NexusPublishPlugin::class.java)
             project.extensions.configure(NexusPublishExtension::class.java) { extension ->
                 extension.repositories.forEach { println(it.name) }

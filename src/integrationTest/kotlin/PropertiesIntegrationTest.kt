@@ -102,7 +102,9 @@ class PropertiesIntegrationTest : AbstractIntegrationTest() {
     }
 
     @Test
-    fun `properties are read in order build file, properties file, system env`(environmentVariables: EnvironmentVariables) {
+    fun `properties are read in order build file, properties file, system env`(
+        environmentVariables: EnvironmentVariables
+    ) {
 
         val group = "$TLD.$ORDER"
         val version = version()

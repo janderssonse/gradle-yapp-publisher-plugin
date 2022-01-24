@@ -79,7 +79,10 @@ internal class ExtensionPropertyKtTest {
         )
 
         val stringValueNoDefault = extensionProperties.properties().filter { it.name == "stringValueNoDefault" }.first()
-        Assertions.assertEquals(PluginExtensionProperties.ExtensionPropertyType.SINGLE, stringValueNoDefault.collectionType)
+        Assertions.assertEquals(
+            PluginExtensionProperties.ExtensionPropertyType.SINGLE,
+            stringValueNoDefault.collectionType
+        )
         Assertions.assertEquals(PluginExtensionProperties.ValueType.STRING, stringValueNoDefault.valueType)
         Assertions.assertNull(stringValueNoDefault.defaultValue)
         Assertions.assertEquals("", stringValueNoDefault.value)
@@ -96,7 +99,10 @@ internal class ExtensionPropertyKtTest {
 
         val booleanValueNoDefault =
             extensionProperties.properties().filter { it.name == "booleanValueNoDefault" }.first()
-        Assertions.assertEquals(PluginExtensionProperties.ExtensionPropertyType.SINGLE, booleanValueNoDefault.collectionType)
+        Assertions.assertEquals(
+            PluginExtensionProperties.ExtensionPropertyType.SINGLE,
+            booleanValueNoDefault.collectionType
+        )
         Assertions.assertEquals(PluginExtensionProperties.ValueType.BOOLEAN, booleanValueNoDefault.valueType)
         Assertions.assertNull(booleanValueNoDefault.defaultValue)
         Assertions.assertEquals("", booleanValueNoDefault.value)
@@ -112,13 +118,19 @@ internal class ExtensionPropertyKtTest {
         Assertions.assertEquals(TestExtension.DEFAULT_BOOLEAN_VALUE.toString(), booleanValueWithDefault.value)
 
         val intValueNoDefault = extensionProperties.properties().filter { it.name == "intValueNoDefault" }.first()
-        Assertions.assertEquals(PluginExtensionProperties.ExtensionPropertyType.SINGLE, intValueNoDefault.collectionType)
+        Assertions.assertEquals(
+            PluginExtensionProperties.ExtensionPropertyType.SINGLE,
+            intValueNoDefault.collectionType
+        )
         Assertions.assertEquals(PluginExtensionProperties.ValueType.NUMERIC, intValueNoDefault.valueType)
         Assertions.assertNull(intValueNoDefault.defaultValue)
         Assertions.assertEquals("", intValueNoDefault.value)
 
         val intValueWithDefault = extensionProperties.properties().filter { it.name == "intValueWithDefault" }.first()
-        Assertions.assertEquals(PluginExtensionProperties.ExtensionPropertyType.SINGLE, intValueWithDefault.collectionType)
+        Assertions.assertEquals(
+            PluginExtensionProperties.ExtensionPropertyType.SINGLE,
+            intValueWithDefault.collectionType
+        )
         Assertions.assertEquals(PluginExtensionProperties.ValueType.NUMERIC, intValueWithDefault.valueType)
         Assertions.assertEquals(TestExtension.DEFAULT_INT_VALUE.toString(), intValueWithDefault.defaultValue)
         Assertions.assertEquals(TestExtension.DEFAULT_INT_VALUE.toString(), intValueWithDefault.value)
@@ -130,7 +142,10 @@ internal class ExtensionPropertyKtTest {
         Assertions.assertEquals("", listValueNoDefault.value)
 
         val listValueWithDefault = extensionProperties.properties().filter { it.name == "listValueWithDefault" }.first()
-        Assertions.assertEquals(PluginExtensionProperties.ExtensionPropertyType.LIST, listValueWithDefault.collectionType)
+        Assertions.assertEquals(
+            PluginExtensionProperties.ExtensionPropertyType.LIST,
+            listValueWithDefault.collectionType
+        )
         Assertions.assertEquals(PluginExtensionProperties.ValueType.STRING, listValueWithDefault.valueType)
         Assertions.assertEquals("1,2", listValueWithDefault.defaultValue)
         Assertions.assertEquals("1,2", listValueWithDefault.value)
@@ -288,6 +303,7 @@ internal class ExtensionPropertyKtTest {
 
             @ExtensionProperty(name = "withDescriptionAndExample", example = "example", description = "description")
             var withDescriptionAndExample: Property<String> = propertyString("withDescriptionAndExample")
+
             @ExtensionProperty(name = "withoutDescriptionAndExample")
             var withoutDescriptionAndExample: Property<String> = propertyString("withoutDescriptionAndExample")
         }
@@ -298,10 +314,12 @@ internal class ExtensionPropertyKtTest {
             clazz = TestExtension::class,
             extension = TestExtension(project = project, project.objects)
         )
-        val withDescriptionAndExample = extensionProperties.properties().filter { it.name == "withDescriptionAndExample" }.first()
+        val withDescriptionAndExample =
+            extensionProperties.properties().filter { it.name == "withDescriptionAndExample" }.first()
         Assertions.assertEquals("description", withDescriptionAndExample.description)
         Assertions.assertEquals("example", withDescriptionAndExample.example)
-        val withoutDescriptionAndExample = extensionProperties.properties().filter { it.name == "withoutDescriptionAndExample" }.first()
+        val withoutDescriptionAndExample =
+            extensionProperties.properties().filter { it.name == "withoutDescriptionAndExample" }.first()
         Assertions.assertNull(withoutDescriptionAndExample.description)
         Assertions.assertNull(withoutDescriptionAndExample.example)
     }

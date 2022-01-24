@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import org.gradle.api.Project
 import org.gradle.api.Plugin
+import org.gradle.api.Project
 
-class GradlePlugin: Plugin<Project> {
+class GradlePlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.tasks.register("greeting") { task ->
             task.doLast {

@@ -19,7 +19,10 @@ internal class GitHubPackagesRepository(
 
     private fun credentials(): RepositoryConfiguration {
         val uri =
-            URI("https://maven.pkg.github.com/${project.yappExtension().gitHub.namespace.get()}/${project.yappExtension().gitHub.repoName.get()}")
+            URI(
+                "https://maven.pkg.github.com/${project.yappExtension().gitHub.namespace.get()}/" +
+                    project.yappExtension().gitHub.repoName.get()
+            )
         val credential = RepositoryCredential(
             project.yappExtension().gitHub.user.get(), project.yappExtension().gitHub.token.get()
         )

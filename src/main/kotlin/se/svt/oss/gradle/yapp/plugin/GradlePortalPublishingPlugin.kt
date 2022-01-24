@@ -43,8 +43,9 @@ internal class GradlePortalPublishingPlugin(project: Project) : BasePlugin(proje
             }
 
             project.extensions.configure(PublishingExtension::class.java) { p ->
-                for (declaration in project.extensions.getByType(GradlePluginDevelopmentExtension::class.java).plugins) {
-                    val coordinates: MavenPublication = p.publications.getByName("pluginMaven") as MavenPublication
+                for (declaration in extensions.getByType(GradlePluginDevelopmentExtension::class.java).plugins) {
+                    val coordinates: MavenPublication = p.publications.getByName("pluginMaven")
+                        as MavenPublication
                     val pluginId = declaration.id
                     val pluginGroupId = coordinates.groupId
                     val pluginArtifactId = project.rootProject.name

@@ -3,13 +3,12 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
-# Gradle Yapp Publisher Plugin - or Yet Another Publisher Plugin 
+# Gradle Yapp Publisher Plugin - or Yet Another Publisher Plugin
 
 ## What is it?
 
-A Gradle plugin for publishing and optionally signing JVM-based projects (currently Java/Kotlin) and libraries packages to Maven Central,
-Gradle Portal, GitHub, GitLab, Artifactory (basic support).
-
+A Gradle plugin for publishing and optionally signing JVM-based projects (currently Java/Kotlin) and libraries packages
+to Maven Central, Gradle Portal, GitHub, GitLab, Artifactory (basic support).
 
 ## Why does it exist?
 
@@ -18,7 +17,6 @@ To make life (well, arguably) easier when configuring the plugins needed for the
 To offer a simple, flexible union interface for these tasks, regardless of publishing target.
 
 If you want a coherent configuration for multiple publishing targets this gradle plugin could be for you.
-
 
 ## Features
 
@@ -37,17 +35,18 @@ If you want a coherent configuration for multiple publishing targets this gradle
 ### Quickstart
 
 1. Add this [plugin](#plugin-addition) itself to your plugins block
-    
-2. Configure the plugin, see the [examples](#examples).
-The examples show the most basic settings - there are lots more to [configure or override if you need/want to](#configurations).
 
-3. Run [Gradle Task](#tasks) *yappConfiguration* to view the plugins current project type and publish target configuration.
+2. Configure the plugin, see the [examples](#examples). The examples show the most basic settings - there are lots more
+   to [configure or override if you need/want to](#configurations).
+
+3. Run [Gradle Task](#tasks) *yappConfiguration* to view the plugins current project type and publish target
+   configuration.
 
 4. Run [Gradle Task](#tasks) *publishArtifactToLocalRepo* to publish your task to the local repo for verification.
 
 5. Run [Gradle Task](#tasks) *publish* to publish your plugin.
 
-## Plugin addition 
+## Plugin addition
 
 Beside adding this plugin
 
@@ -58,7 +57,7 @@ plugins {
 }
 ```
 
-You can also add one of the following basic publishing plugins as a placeholder, [Publishing Target](#publishing-target) 
+You can also add one of the following basic publishing plugins as a placeholder, [Publishing Target](#publishing-target)
 
 *Publishing to Maven Central/GitLab/GitHub/Custom (Java/Kotlin Library)*
 
@@ -85,7 +84,8 @@ The plugin offers a few tasks found under "yapp publisher".
 * createConfigurationTemplate TO-DO
 * publishArtifact - publish the artifact to the [publishing target](#publishing-target)
 * publishArtifactToLocalRepo - publish to local repo
-* yappConfiguration - show the current configuration - i.e. type of [publishing target](#publishing-target), project type and more
+* yappConfiguration - show the current configuration - i.e. type of [publishing target](#publishing-target), project
+  type and more
 
 ## Publishing target
 
@@ -93,6 +93,7 @@ A publishing target defines where to publish the project.
 
 Allowed target values are:
 - 
+
 - artifactory
 - maven_central
 - maven_central_snapshot
@@ -101,7 +102,7 @@ Allowed target values are:
 - gradle_portal
 - custom TO-DO
 
-If you leave this empty, the plugin will make a guess based on your added plugins and version. 
+If you leave this empty, the plugin will make a guess based on your added plugins and version.
 
 ### In summary, The plugin needs to know about:
 
@@ -109,7 +110,8 @@ If you leave this empty, the plugin will make a guess based on your added plugin
 * A few properties, depending on your configuration target
 * A project type (for example, a java-library)
 
-* If project type and publish target are not configured explicitly, _they are chosen on a best-effort guess_, depending on you chosen plugin and version setup.
+* If project type and publish target are not configured explicitly, _they are chosen on a best-effort guess_, depending
+  on you chosen plugin and version setup.
 
 ## Examples
 
@@ -195,7 +197,7 @@ yapp {
 }
 ```
 
-Properties file(gradle.properties) configuration 
+Properties file(gradle.properties) configuration
 
 ```properties
 yapp.targets= maven_central
@@ -227,6 +229,7 @@ You can put your configuration in a
 - System Environment Variable
 
 This is also the order in which they will be picked up.
+
 * NOTE: System Environments are always in CAPITAL, i.e YAPP_POM_ARTIFACTID, and so on.
 
 * **Yapp Publisher General Configuration **
@@ -234,7 +237,7 @@ This is also the order in which they will be picked up.
 | File             | Type                         |                                        |
 | ---------------- | --------------------------   | -------------------                    |
 | Property file    | gradle.properties-format:    | yapp.property             |
-| Build file       | build.gradle.kts-format      | yapp { property  }   |
+| Build file       | build.gradle.kts-format      | yapp { property }   |
 | N/A              | environment variable         | YAPP_PROPERTY             |
 
 | property            | description           |   example value               |  (maps to)                                                                         |
@@ -274,7 +277,6 @@ This is also the order in which they will be picked up.
 | user                          | *                 | *                      |              |
 | password                      | *                 | *                      |              |
 
-
 **Signing**
 
 | File             | Type                         |                                        |
@@ -291,9 +293,8 @@ This is also the order in which they will be picked up.
 | keyId               | public key id (last 8)| abc12345                      | [keyId](https://docs.gradle.org/current/userguide/signing_plugin.html)             |
 | key                 | signing key           | /path/to/gpgkey or textformat | [secretKeyRingFile](https://docs.gradle.org/current/userguide/signing_plugin.html)            |
 
-Note: The signing key can be either a path to an gpg-key or in text format with literal newlines
-as \n.
-See the gpg folder under the Project test resources for examples.
+Note: The signing key can be either a path to an gpg-key or in text format with literal newlines as \n. See the gpg
+folder under the Project test resources for examples.
 
 **Gradle Plugin and publishing**
 
@@ -363,13 +364,13 @@ In an early stage, the following features would be a nice roadmap:
 
 * Why are there tasks called generateMetaDataFileForPluginMavenPublication and more, all relating to "pluginMaven"
 
-It is a design choice (or a bug) from Gradle, these tasks are autogenerated for the Maven Publish plugin and can't be disabled.
-Look att [https://github.com/gradle/gradle/issues/12394](https://github.com/gradle/gradle/issues/12394)
+It is a design choice (or a bug) from Gradle, these tasks are autogenerated for the Maven Publish plugin and can't be
+disabled. Look att [https://github.com/gradle/gradle/issues/12394](https://github.com/gradle/gradle/issues/12394)
 
 * Why another publisher plugin ?
 
-At the time of starting this plugin there was none found that had all the features this one has.
-I wanted an easy way to just drop in some configurations and publish to many places. And then it grew.
+At the time of starting this plugin there was none found that had all the features this one has. I wanted an easy way to
+just drop in some configurations and publish to many places. And then it grew.
 
 ## The plugin abstracts:
 

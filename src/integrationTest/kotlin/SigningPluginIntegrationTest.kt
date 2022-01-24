@@ -73,7 +73,7 @@ class SigningPluginIntegrationTest : AbstractIntegrationTest() {
                 ConfigurationData.buildFileYappSection(
                     listOf(MAVEN_CENTRAL.lowercase()),
                     mavenpublishingsection = ConfigurationData.buildFileMavenPublishingSection(group, version),
-                    signingsection = ConfigurationData.buildFileSigningSection(signingKey, true,)
+                    signingsection = ConfigurationData.buildFileSigningSection(signingKey, true)
                 ),
                 buildGradleFile = pathDict.buildFilePath
             ),

@@ -73,6 +73,10 @@ internal object PublishTargetUtil {
         }
     }
 }
+
 fun Project.publishingTargets(): List<BasePublishTarget> = PublishTargetUtil.identifyPublishTarget(this)
-fun fetchPluginExtensionsPropertiesForTarget(target: BasePublishTarget): PluginExtensionProperties = PublishTargetUtil.fetchPluginExtensionsPropertiesForTarget(target)
-fun fetchPluginExtensionsForTarget(target: BasePublishTarget): PropertyHandler = PublishTargetUtil.fetchPluginExtensionForTarget(target)!!
+fun fetchPluginExtensionsPropertiesForTarget(target: BasePublishTarget): PluginExtensionProperties =
+    PublishTargetUtil.fetchPluginExtensionsPropertiesForTarget(target)
+
+fun fetchPluginExtensionsForTarget(target: BasePublishTarget): PropertyHandler =
+    PublishTargetUtil.fetchPluginExtensionForTarget(target)!!

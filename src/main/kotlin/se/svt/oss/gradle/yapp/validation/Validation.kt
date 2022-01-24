@@ -56,7 +56,8 @@ private fun validateObj(obj: Any): Validation {
     val properties: Collection<KProperty1<Any, *>> = if (
         kClass.memberProperties.first().declaringClass()?.kotlin?.declaredMemberProperties != null
     ) kClass.memberProperties.first()
-        .declaringClass()!!.kotlin.declaredMemberProperties as Collection<KProperty1<Any, *>> else kClass.declaredMemberProperties
+        .declaringClass()!!.kotlin.declaredMemberProperties as Collection<KProperty1<Any, *>>
+    else kClass.declaredMemberProperties
     properties.forEach {
         run {
             val warning = validateProperty(it, obj)

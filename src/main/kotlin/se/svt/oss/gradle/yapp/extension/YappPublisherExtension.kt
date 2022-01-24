@@ -29,6 +29,7 @@ open class YappPublisherExtension @Inject constructor(project: Project, objects:
     fun signing(action: Action<in SigningExtension>) = action.execute(signing)
     fun gradlePortalPublishing(action: Action<in GradlePluginPublishingExtension>) =
         action.execute(gradlePortalPublishing)
+
     fun artifactoryPublishing(action: Action<in ArtifactoryExtension>) = action.execute(artifactoryPublishing)
 
     @ExtensionProperty(
