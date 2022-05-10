@@ -144,6 +144,12 @@ class PluginExtensionProperties(
         MAP,
     }
 
+    enum class AfterEvalOnlyPropertyType {
+        GROUPID,
+        ARTIFACTID,
+        VERSION,
+    }
+
     class ExtensionProperty(
         val name: String,
         value: String,
@@ -163,6 +169,9 @@ class PluginExtensionProperties(
         val value: String = value
             // Overrides value to handle formatters (secrets)
             get() {
+                if (AfterEvalOnlyPropertyType.values().map { it.toString() }.toList()
+                    .contains(name.uppercase()) && field.isNotEmpty()
+                ) return field
                 // Always return empty string as no value
                 if (!inProject && !inEnv && defaultValue == null) {
                     return ""
@@ -346,12 +355,26 @@ private fun getValueAsString(
     val extractor: ExtensionPropertyValueExtractor? = annotationWrapper.extractor?.extractor?.createInstance()
     val parser = extractor?.parser()
     var extraDescription = ""
+
     if (value is Property<*>) {
         if (extractor != null) {
             value = extractor.asString(value.get())
         } else {
             value = value.orNull
-            if (value != null) {
+
+            if (PluginExtensionProperties.AfterEvalOnlyPropertyType.values()
+                .map { it.toString() }
+                .toList()
+                .contains(annotationWrapper.propertyName.uppercase()) && value.toString().isEmpty()
+            ) {
+                if (annotationWrapper.propertyName == "groupId")
+                    value = extension.project.group
+                else if (annotationWrapper.propertyName == "artifactId")
+                    value = extension.project.name
+                else {
+                    value = extension.project.version
+                }
+            } else if (value != null) {
                 if (value is Boolean) {
                     valueType = PluginExtensionProperties.ValueType.BOOLEAN
                     value = value.toString()

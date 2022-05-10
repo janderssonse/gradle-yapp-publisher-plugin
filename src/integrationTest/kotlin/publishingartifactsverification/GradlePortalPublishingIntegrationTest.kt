@@ -41,7 +41,8 @@ class GradlePortalPublishingIntegrationTest : AbstractIntegrationTest() {
                     gradleportalsection = conf.buildFileGradlePortalSection("$group.$projectType")
                 ),
                 plugin2 = """id("org.jetbrains.kotlin.jvm") version "1.5.31"
-                | `java-gradle-plugin`""".trimMargin(),
+                | `java-gradle-plugin`
+                """.trimMargin(),
                 buildGradleFile = pathDict.buildFilePath
             ),
             pathDict = pathDict

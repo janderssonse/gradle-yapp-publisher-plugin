@@ -21,8 +21,13 @@ internal open class MavenCentralRepository(
     }
 
     private fun ossrhCredential(): RepositoryConfiguration {
-        val uri = URI("https://${getUrlPrefix()}oss.sonatype.org/content/repositories/snapshots/")
-        val snapShotUri = URI("https://${getUrlPrefix()}oss.sonatype.org/service/local/")
+        val snapShotUri = URI("https://${getUrlPrefix()}oss.sonatype.org/content/repositories/snapshots/")
+
+        val uri = if (project.yappExtension().mavenPublishing.directReleaseToMavenCentral.get()) {
+            URI("https://${getUrlPrefix()}oss.sonatype.org/service/local/")
+        } else {
+            URI("https://${getUrlPrefix()}oss.sonatype.org/service/local/staging/deploy/maven2/")
+        }
         val credential = RepositoryCredential(
             project.yappExtension().mavenPublishing.user.get(), project.yappExtension().mavenPublishing.password.get()
         )

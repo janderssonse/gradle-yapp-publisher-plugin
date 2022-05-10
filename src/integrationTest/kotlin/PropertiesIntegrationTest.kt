@@ -86,6 +86,7 @@ class PropertiesIntegrationTest : AbstractIntegrationTest() {
         conf.systemEnvironmentMavenPublishing(version).entries.forEach {
             environmentVariables.set(it.key, it.value)
         }
+
         val referencePom = resource("pom/environment.pom").readText()
             .replace("{GROUPID}", group)
             .replace("{ARTIFACTID}", KOTLINLIB)

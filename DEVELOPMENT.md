@@ -2,14 +2,14 @@
 
 1. Clone the project
 
-```
-$ git clone GITURL 
+```console
+git clone GITURL 
 ```
 
 2. Verify your setup works, run the tests,
 
-```
-$ ./gradlew clean check
+```console
+./gradlew clean check
 ```
 
 ## Installing this plugin to your local repo (so you can use it in test projects)
@@ -17,7 +17,7 @@ $ ./gradlew clean check
 1. In the folder X, install the plugin to your local repository. We are using the official plugins for this as long as
    this plugin is not published (in the future, we can use this plugin for this also, but for now)
 
-```
+```console
 ./gradlew publishToMavenLocal
 ```
 
@@ -73,7 +73,7 @@ and finally comment the pluginbundle and gradleplugin sections, you are now usin
 
 Refresh your gradle and you should see tasks yapp publisher. Verify that you can publish this plugin to local repo
 
-```
+```console
 ./gradlew clean publishArtifactToLocalRepo
 ```
 

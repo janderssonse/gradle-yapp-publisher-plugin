@@ -5,7 +5,6 @@
 package se.svt.oss.gradle.yapp.publishingtarget
 
 import org.gradle.api.Project
-import se.svt.oss.gradle.yapp.isSnapShot
 
 abstract class BasePublishTarget(
     val project: Project,
@@ -14,10 +13,10 @@ abstract class BasePublishTarget(
     abstract fun configure()
 
     fun name(): String {
-        return if (project.isSnapShot()) {
-            "${this.javaClass.simpleName}-SNAPSHOT"
-        } else {
-            this.javaClass.simpleName
-        }
+        // return if (project.isSnapShot()) {
+        //  "${this.javaClass.simpleName}-SNAPSHOT"
+        // } else {
+        return this.javaClass.simpleName
+        // }
     }
 }

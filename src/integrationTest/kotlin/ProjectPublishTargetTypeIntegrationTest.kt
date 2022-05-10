@@ -73,7 +73,8 @@ class ProjectPublishTargetTypeIntegrationTest : AbstractIntegrationTest() {
                     buildFileMavenPublishingSection(group, version)
                 ),
                 plugin2 = """kotlin("jvm") version "1.5.21"
-                | `java-library`""".trimMargin(),
+                | `java-library`
+                """.trimMargin(),
                 buildGradleFile = pathDict.buildFilePath
             ),
 
@@ -97,7 +98,8 @@ class ProjectPublishTargetTypeIntegrationTest : AbstractIntegrationTest() {
                     buildFileMavenPublishingSection(group, version)
                 ),
                 plugin2 = """id("org.jetbrains.kotlin.jvm") version "1.5.31"
-                | `java-gradle-plugin`""".trimMargin(),
+                | `java-gradle-plugin`
+                """.trimMargin(),
                 buildGradleFile = pathDict.buildFilePath
             ),
 

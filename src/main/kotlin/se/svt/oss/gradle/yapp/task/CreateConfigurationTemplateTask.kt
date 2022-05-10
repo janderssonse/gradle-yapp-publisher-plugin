@@ -276,7 +276,7 @@ abstract class CreateConfigurationTemplateTask @Inject constructor(
                             ""
                         }
                     if (props.parser != null) {
-                        val parsed = props.parser?.let { it(answer.toString()) }
+                        val parsed = props.parser.let { it(answer.toString()) }
                         if (parsed is List<*>) {
                             parsed.forEachIndexed { idx, value ->
                                 run {

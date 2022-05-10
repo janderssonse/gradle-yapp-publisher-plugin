@@ -61,7 +61,7 @@ class ConfigurationData {
 
        |yapp.ossrhUser=propu
        |yapp.ossrhPassword=proppw
-    """.trimMargin()
+        """.trimMargin()
 
         fun buildFileYappSection(
             targets: List<String>,
@@ -208,9 +208,11 @@ plugins {
     `maven-publish`
     `java-gradle-plugin`
     signing
-    kotlin("jvm") version "1.5.31"
-    id("org.jetbrains.dokka") version "1.5.31"
-    id("com.gradle.plugin-publish") version "0.16.0"
+    kotlin("jvm") version "1.6.21"
+    id("org.jetbrains.dokka") version "1.6.21"
+    id("com.gradle.plugin-publish") version "0.21.0"
+
+
 }
 
 group = "$group"
@@ -224,19 +226,18 @@ repositories {
 }
 
 dependencies {
-    api("com.gradle.publish:plugin-publish-plugin:0.16.0")
+    api("com.gradle.publish:plugin-publish-plugin:0.21.0")
 
 
-    api("org.jfrog.artifactory.client:artifactory-java-client-services:2.9.2")
-    compileOnly("com.android.tools.build:gradle:7.0.4")
+    api("org.jfrog.artifactory.client:artifactory-java-client-services:2.10.0")
+    compileOnly("com.android.tools.build:gradle:7.1.3")
 
     implementation("io.github.gradle-nexus:publish-plugin:1.1.0")
-    testImplementation("commons-io:commons-io:2.11.0")
-    testImplementation("org.xmlunit:xmlunit-core:2.8.2")
-    testImplementation("org.xmlunit:xmlunit-matchers:2.8.3")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.8.1")
-    testImplementation("uk.org.webcompere:system-stubs-jupiter:1.2.0")
+    testImplementation("org.xmlunit:xmlunit-core:2.9.0")
+    testImplementation("org.xmlunit:xmlunit-matchers:2.9.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+    testImplementation("uk.org.webcompere:system-stubs-jupiter:2.0.1")
 
 }
 
@@ -246,6 +247,12 @@ tasks {
     }
 }
 
+kotlin {
+
+    jvmToolchain {
+        (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(11))
+    }
+}
 
 pluginBundle {
     website = "https://github.com/svt/gradle-yapp-publisher-plugin"
@@ -279,7 +286,7 @@ java {
 
 tasks.named<Wrapper>("wrapper") {
     distributionType = Wrapper.DistributionType.ALL
-    gradleVersion = "7.2"
+    gradleVersion = "7.4.2"
 }
         """.trimIndent()
     }

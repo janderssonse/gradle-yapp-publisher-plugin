@@ -10,6 +10,7 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.authentication.http.HttpHeaderAuthentication
 import se.svt.oss.gradle.yapp.extension.YappPublisherExtension
+import se.svt.oss.gradle.yapp.isSnapShot
 import se.svt.oss.gradle.yapp.publishingtarget.PublishingTargetType
 import se.svt.oss.gradle.yapp.publishingtarget.RepositoryConfiguration
 
@@ -91,7 +92,7 @@ class MavenPublishingPlugin(project: Project) : BasePlugin(project) {
                     repository.maven { r ->
                         r.apply {
                             name = repositoryConf.name
-                            url = repositoryConf.uri
+                            url = if (project.isSnapShot()) { repositoryConf.snapShotUri } else repositoryConf.uri
 
                             if (publishingTargetType == PublishingTargetType.GITLAB) {
                                 credentials(HttpHeaderCredentials::class.java) {

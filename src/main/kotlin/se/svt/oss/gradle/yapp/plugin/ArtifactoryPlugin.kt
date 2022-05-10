@@ -44,10 +44,6 @@ data class ArtifactoryPlugin(val project: Project) {
         .setUrl(yappExtension().artifactoryPublishing.host.get())
         .setUsername(yappExtension().artifactoryPublishing.user.get())
         .setPassword(yappExtension().artifactoryPublishing.password.get())
-        .addInterceptorLast { request, context ->
-            project.logger.warn("Artifactory request: " + request.requestLine)
-            project.logger.warn("Context: $context")
-        }
         .build()
 
     private fun artifactoryTargetBasePath() =
