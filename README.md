@@ -272,7 +272,7 @@ If you have questions, concerns, bug reports, etc, please file an issue in this 
 
 ## Getting involved
 
-General instructions for contributing [CONTRIBUTING](docs/CONTRIBUTIONS.adoc).
+General instructions for contributing [CONTRIBUTING](docs/CONTRIBUTING.adoc).
 
 ----
 
