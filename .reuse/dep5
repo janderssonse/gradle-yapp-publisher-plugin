@@ -1,52 +1,60 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: gradle-yapp-publisher-plugin
+Source: https://github.com/svt/gradle-yapp-publisher-plugin
 
-Files: *.pom
-Copyright: 2021 Sveriges Television AB
+Files: *.yml 
+Copyright: 2022 Sveriges Television AB
 License: CC0-1.0
 
-Files: *.asc
-Copyright: 2021 Sveriges Television AB
+Files: *.md 
+Copyright: 2022 Sveriges Television AB
 License: CC0-1.0
 
-Files: *.gpg
-Copyright: 2021 Sveriges Television AB
-License: CC0-1.0
-
-Files: *.properties
-Copyright: 2021 Sveriges Television AB
-License: CC0-1.0
-
-Files: .gitignore
-Copyright: 2021 Sveriges Television AB
-License: CC0-1.0
-
-Files: *.kts
-Copyright: 2021 Sveriges Television AB
-License: CC0-1.0
-
-Files: *.md
-Copyright: 2021 Sveriges Television AB
+Files: *.js
+Copyright: 2022 Sveriges Television AB
 License: CC0-1.0
 
 Files: *.adoc
-Copyright: 2021 Sveriges Television AB
+Copyright: 2022 Sveriges Television AB
 License: CC0-1.0
 
-Files: *.gradle.test
-Copyright: 2021 Sveriges Television AB
+Files: .gitignore 
+Copyright: 2022 Sveriges Television AB
 License: CC0-1.0
 
-# Third-party files.
-
-
-Files: *gradlew*
-Copyright: 2007-2020 The original author or authors <info@gradle.com>
+Files: gradlew*
+Copyright: 2007-2022 The original author or authors <info@gradle.com>
 License: Apache-2.0
 
 Files: gradle/*
-Copyright: 2007-2020 The original author or authors <info@gradle.com>
+Copyright: 2007-2022 The original author or authors <info@gradle.com>
 License: Apache-2.0
 
-Files: *gradle-wrapper.jar
-Copyright: 2007-2020 The original author or authors <info@gradle.com>
-License: Apache-2.0
+Files: *.properties
+Copyright: 2022 Sveriges Television AB
+License: CC0-1.0
+
+Files: *.editorconfig
+Copyright: 2022 Sveriges Television AB
+License: CC0-1.0
+
+Files: *.kts
+Copyright: 2022 Sveriges Television AB
+License: CC0-1.0
+
+Files: *.pom
+Copyright: 2022 Sveriges Television AB
+License: CC0-1.0
+
+Files: **/build_template_kts
+Copyright: 2022 Sveriges Television AB
+License: CC0-1.0
+
+Files: *.gpg
+Copyright: 2022 Sveriges Television AB
+License: CC-BY-NC-ND-4.0
+
+Files: *.asc
+Copyright: 2022 Sveriges Television AB
+License: CC-BY-NC-ND-4.0
+
