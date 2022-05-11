@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2022 Sveriges Television AB
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2022 Sveriges Television AB
+//
+// SPDX-License-Identifier: Apache-2.0
+
 public class JavaLibrary {
     public boolean someLibraryMethod() {
         return true;

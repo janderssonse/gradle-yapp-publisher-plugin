@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021 Sveriges Television AB
+// SPDX-FileCopyrightText: 2022 Sveriges Television AB
 //
 // SPDX-License-Identifier: Apache-2.0
 
