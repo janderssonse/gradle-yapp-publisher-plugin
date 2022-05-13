@@ -11,11 +11,11 @@ plugins {
     // id("com.jfrog.artifactory") version "4.26.1"
     // id("com.gradle.plugin-publish") version "0.18.0"
     id("pl.allegro.tech.build.axion-release") version "1.13.6"
-    id("se.svt.oss.gradle-yapp-publisher-plugin") version "0.1.33"
+    id("se.svt.oss.gradle-yapp-publisher-plugin") version "0.1.15"
 }
 
 group = "se.svt.oss"
-// version = "0.0.35" // scmVersion.version
+version = scmVersion.version
 description = "Yet another plugin that manages publishing for Gradle projects"
 
 repositories {
